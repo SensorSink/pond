@@ -1,0 +1,6 @@
+
+
+dependencies {
+  compile project( ":trucking.model" )
+  compile libraries.zest_api
+}

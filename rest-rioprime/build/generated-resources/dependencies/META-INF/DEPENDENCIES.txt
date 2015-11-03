@@ -1,0 +1,185 @@
+
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// build dependencies listed by organization.
+// ------------------------------------------------------------------
+
+trucking.rest-rioprime
+
+
+From: Apache Software Foundation - http://jakarta.apache.org/
+
+  - HttpClient 3.1 (commons-httpclient:commons-httpclient:3.1:jar) http://jakarta.apache.org/httpcomponents/httpclient-3.x/
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+From: Codehaus - http://www.codehaus.org/
+
+  - Woodstox 4.3.0 (org.codehaus.woodstox:woodstox-core-asl:4.3.0:jar) http://woodstox.codehaus.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+From: false 
+
+  - trucking.rest-common 0 (false:trucking.rest-common:0:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - trucking.rest-client 0 (false:trucking.rest-client:0:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - trucking.security 0 (false:trucking.security:0:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+From: FasterXML 
+
+  - Jackson-dataformat-CSV 2.4.4 (com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.4.4:jar) https://github.com/FasterXML/jackson-dataformat-csv
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - jackson-databind 2.5.4 (com.fasterxml.jackson.core:jackson-databind:2.5.4:jar) http://github.com/FasterXML/jackson
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Jackson-annotations 2.5.0 (com.fasterxml.jackson.core:jackson-annotations:2.5.0:jar) http://github.com/FasterXML/jackson
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Jackson-core 2.5.4 (com.fasterxml.jackson.core:jackson-core:2.5.4:jar) https://github.com/FasterXML/jackson
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Jackson-dataformat-Smile 2.4.4 (com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.4.4:jar) http://wiki.fasterxml.com/JacksonForSmile
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Jackson-dataformat-XML 2.4.4 (com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.4.4:jar) http://wiki.fasterxml.com/JacksonExtensionXmlDataBinding
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Jackson-module-JAXB-annotations 2.4.4 (com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.4.4:jar) http://wiki.fasterxml.com/JacksonJAXBAnnotations
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Jackson-dataformat-YAML 2.4.4 (com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.4.4:jar) https://github.com/FasterXML/jackson
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - jackson-module-jsonSchema 2.4.4 (com.fasterxml.jackson.module:jackson-module-jsonSchema:2.4.4:jar) https://github.com/FasterXML/jackson-module-jsonSchema
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+From: fasterxml.com - http://fasterxml.com
+
+  - Stax2 API 3.1.4 (org.codehaus.woodstox:stax2-api:3.1.4:jar) http://wiki.fasterxml.com/WoodstoxStax2
+
+From: GlassFish Community - https://glassfish.dev.java.net
+
+  - Java Servlet API 3.1.0 (javax.servlet:javax.servlet-api:3.1.0:jar) http://servlet-spec.java.net
+    License: CDDL + GPLv2 with classpath exception - https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html
+
+From: Joda.org - http://www.joda.org
+
+  - Joda-Time 2.8.1 (joda-time:joda-time:2.8.1:jar) http://www.joda.org/joda-time/
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+From: SLF4J.ORG 
+
+  - SLF4J API Module 1.7.12 (org.slf4j:slf4j-api:1.7.12:jar) http://www.slf4j.org
+    License: MIT License - http://opensource.org/licenses/MIT
+
+From: The Apache Software Foundation 
+
+  - Commons IO 2.4 (commons-io:commons-io:2.4:jar) http://commons.apache.org/io/
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Commons DBCP 1.3 (commons-dbcp:commons-dbcp:1.3:jar) http://commons.apache.org/dbcp/
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Commons Pool 1.5.4 (commons-pool:commons-pool:1.5.4:jar) http://commons.apache.org/pool/
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Commons Lang 2.6 (commons-lang:commons-lang:2.6:jar) http://commons.apache.org/lang/
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+From: The Apache Software Foundation, https://www.apache.org 
+
+  - org.apache.zest.core.api 0 (org.apache.zest.core:org.apache.zest.core.api:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.core.io 0 (org.apache.zest.core:org.apache.zest.core.io:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.core.functional 0 (org.apache.zest.core:org.apache.zest.core.functional:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.library.restlet 0 (org.apache.zest.library:org.apache.zest.library.restlet:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.extension.valueserialization-jackson 0 (org.apache.zest.extension:org.apache.zest.extension.valueserialization-jackson:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.core.bootstrap 0 (org.apache.zest.core:org.apache.zest.core.bootstrap:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.core.spi 0 (org.apache.zest.core:org.apache.zest.core.spi:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.extension.entitystore-file 0 (org.apache.zest.extension:org.apache.zest.extension.entitystore-file:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.library.constraints 0 (org.apache.zest.library:org.apache.zest.library.constraints:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.library.locking 0 (org.apache.zest.library:org.apache.zest.library.locking:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.library.fileconfig 0 (org.apache.zest.library:org.apache.zest.library.fileconfig:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.extension.indexing-rdf 0 (org.apache.zest.extension:org.apache.zest.extension.indexing-rdf:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - org.apache.zest.library.rdf 0 (org.apache.zest.library:org.apache.zest.library.rdf:0:jar) https://zest.apache.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+From: Unknown Organization 
+
+  - Restlet Core - API and Engine  (org.restlet.jee:org.restlet:2.3.4:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Restlet Extension - Atom  (org.restlet.jee:org.restlet.ext.atom:2.3.4:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Restlet Extension - XML  (org.restlet.jee:org.restlet.ext.xml:2.3.4:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Restlet Extension - Servlet  (org.restlet.jee:org.restlet.ext.servlet:2.3.4:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Restlet Extension - SLF4J  (org.restlet.jee:org.restlet.ext.slf4j:2.3.4:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Restlet Extension - Jackson  (org.restlet.jee:org.restlet.ext.jackson:2.3.4:jar) 
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - SnakeYAML 1.13 (org.yaml:snakeyaml:1.13:jar) http://www.snakeyaml.org
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+  - Streaming API for XML 1.0-2 (javax.xml.stream:stax-api:1.0-2:jar) 
+    License: Common Development and Distribution License - http://opensource.org/licenses/CDDL-1.0
+  - org.json 20130213 (org.codeartisans:org.json:20130213:jar) http://github.com/eskatos/org.json-java
+    License: The Apache Software License, Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+    License: MIT License - http://opensource.org/licenses/MIT
+  - OpenRDF Sesame: Sail API  (org.openrdf.sesame:sesame-sail-api:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Model  (org.openrdf.sesame:sesame-model:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: util  (org.openrdf.sesame:sesame-util:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Query  (org.openrdf.sesame:sesame-query:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Rio - API  (org.openrdf.sesame:sesame-rio-api:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Query algebra - model  (org.openrdf.sesame:sesame-queryalgebra-model:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Rio - RDF/XML  (org.openrdf.sesame:sesame-rio-rdfxml:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Query parser - SPARQL  (org.openrdf.sesame:sesame-queryparser-sparql:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Query parser - API  (org.openrdf.sesame:sesame-queryparser-api:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Rio - N-Triples  (org.openrdf.sesame:sesame-rio-ntriples:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: HTTPRepository  (org.openrdf.sesame:sesame-repository-http:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Repository - API  (org.openrdf.sesame:sesame-repository-api:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: HTTP client  (org.openrdf.sesame:sesame-http-client:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: HTTP protocol  (org.openrdf.sesame:sesame-http-protocol:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Query result IO - API  (org.openrdf.sesame:sesame-queryresultio-api:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: NativeStore  (org.openrdf.sesame:sesame-sail-nativerdf:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Inferencer Sails  (org.openrdf.sesame:sesame-sail-inferencer:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Query algebra - evaluation  (org.openrdf.sesame:sesame-queryalgebra-evaluation:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: SPARQL Repository  (org.openrdf.sesame:sesame-repository-sparql:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Query result IO - SPARQL/XML  (org.openrdf.sesame:sesame-queryresultio-sparqlxml:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: MemoryStore  (org.openrdf.sesame:sesame-sail-memory:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: DatasetRepository (wrapper)  (org.openrdf.sesame:sesame-repository-dataset:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: SailRepository  (org.openrdf.sesame:sesame-repository-sail:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Rio - TriX  (org.openrdf.sesame:sesame-rio-trix:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Rio - N3 (writer-only)  (org.openrdf.sesame:sesame-rio-n3:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Rio - Turtle  (org.openrdf.sesame:sesame-rio-turtle:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: RDBMS Sail  (org.openrdf.sesame:sesame-sail-rdbms:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause
+  - OpenRDF Sesame: Rio - TriG  (org.openrdf.sesame:sesame-rio-trig:2.7.9:jar) 
+    License: BSD 3-Clause License - http://opensource.org/licenses/BSD-3-Clause

@@ -1,0 +1,5 @@
+dependencies{
+  compile libraries.zest_api
+
+  compile libraries.restlet
+}

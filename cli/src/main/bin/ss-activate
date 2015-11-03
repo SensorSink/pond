@@ -1,0 +1,5 @@
+#!/bin/sh
+
+read -p "activate environment:" ENVIRON
+
+echo "$ENVIRON" >$HOME/.sensorsink/active.env

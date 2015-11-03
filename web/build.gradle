@@ -1,0 +1,10 @@
+dependencies {
+  compile project(":trucking.bootstrap")
+  compile project(":trucking.model")
+  compile project(":trucking.security")
+  compile libraries.zest_api
+  compile libraries.zest_spi
+  compile libraries.zest_bootstrap
+  compile libraries.zest_runtime
+  compile libraries.zest_restlet
+}

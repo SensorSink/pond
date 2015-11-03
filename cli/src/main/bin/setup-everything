@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./ss create device ta2.lantmannen.malmo.bali.io

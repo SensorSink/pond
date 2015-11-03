@@ -1,0 +1,5 @@
+
+dependencies {
+  compile libraries.jackson_mapper
+  compile libraries.restlet
+}

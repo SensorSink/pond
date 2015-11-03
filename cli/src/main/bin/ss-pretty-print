@@ -1,0 +1,23 @@
+#!/bin/sh
+
+DATA=`cat`
+if [[ $DATA == ERROR:* ]] ; then
+    echo $DATA
+    exit 1
+fi
+
+if [[ $DATA == [A-Za-z0-9]* ]]  ; then
+    for TEXT in $DATA ; do echo $TEXT ; done
+    exit 1
+fi
+
+# Yaml output??
+# echo $DATA | python -c 'import sys, yaml, json; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' 2>/dev/null
+
+# prettified JSON
+echo $DATA | python -m json.tool
+
+# If the above doesn't work, then do a regular 'cat'
+if [ "$?" != "0" ] ; then
+    echo $DATA
+fi

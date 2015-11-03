@@ -1,0 +1,17 @@
+#!/bin/sh
+
+CURRENTDIR=`pwd`
+LAUNCHDIR=`dirname $0`
+cd $LAUNCHDIR
+export SS_HOME=`pwd`
+cd $CURRENTDIR
+
+COMMAND=$1
+shift
+
+if [ -f $SS_HOME/ss-stop-$COMMAND ]; then
+  $SS_HOME/ss-stop-$COMMAND "$@"
+else
+  echo "ERROR: Can't stop a $COMMAND"
+  exit 1
+fi

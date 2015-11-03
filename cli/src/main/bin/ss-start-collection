@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+#
+
+read ACTIVE <$HOME/.sensorsink/active.env
+read NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
+
+curl -qs -L --user $NAME:$PASS -H "Accept: application/json" -X POST http://$ENTRYHOST/api/1/devices/$1/startCollect

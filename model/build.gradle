@@ -1,0 +1,8 @@
+dependencies {
+
+  compile project(":trucking.rest-rioprime")
+
+  compile libraries.zest_api
+  compile libraries.zest_scheduler
+  compile libraries.zest_restlet
+}

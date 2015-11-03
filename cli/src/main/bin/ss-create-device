@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+#
+
+printout()
+{
+    echo \
+    { \
+        \"status\" : \"error\", \"error-text\" : \"$1\", \"usage\" : { \
+            \"command\" : \"ss create device DNS-NAME [TYPE]\", \
+            \"arguments\" : [ \
+                { \"DNS-NAME\"  : \"The DNS name of the device. \" }, \
+                { \"TYPE\"      : \"The device type. Default:generic.\" }, \
+            ] \
+        } \
+    }
+}
+
+read ACTIVE <$HOME/.sensorsink/active.env
+read NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
+
+if [ "$1" == "" ] ; then
+    printout "Missing NAME URL ENV_CHAIN"
+    exit 1
+fi
+
+if [ "$2" == "" ] ; then
+    DEVICE_TYPE="generic"
+else
+    DEVICE_TYPE=$2
+fi
+
+INSPECT=`$SS_HOME/ss inspect device $1`
+EXISTS=`echo $INSPECT | grep "\"code\": 404,"`
+OTHERERROR=`echo $INSPECT | grep "\"code\": 400,"`
+if [ "$EXISTS" != "" ] ; then
+  curl -qs -L --user $NAME:$PASS \
+     -d "name=$1"  \
+     -d "type=$DEVICE_TYPE"  \
+     -H "Accept: application/json" \
+     http://$ENTRYHOST/api/1/devices/create
+elif [ "$OTHERERROR" != "" ] ; then
+  ERROR=`echo $INSPECT | sed 's/.*\"description\": "//' | sed 's/\",.*//'`
+  echo "ERROR: $ERROR"
+else
+  echo "ERROR: Application \"$1\" already exists."
+fi

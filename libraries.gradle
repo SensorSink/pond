@@ -1,0 +1,43 @@
+
+def antVersion = '1.9.5'
+def cassandraClientVersion = '2.1.7'
+def jacksonVersion = '2.5.4'
+def restletVersion = '2.3.4'
+def servletVersion = '2.5'
+def zestVersion = '0'
+
+def junitVersion = '4.11'
+def mockitoVersion = '1.10.19'
+
+rootProject.ext {
+  libraries = [
+          // Ant
+          ant: "org.apache.ant:ant:$antVersion",
+          ant_junit: "org.apache.ant:ant-junit:$antVersion",
+          junit: "org.apache.ant:ant-junit:$antVersion",
+
+          jackson_mapper: "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+          restlet: [
+                  "org.restlet.jee:org.restlet:$restletVersion",
+//                  "org.restlet.jee:org.restlet.ext.ssl:$restletVersion",
+                  "org.restlet.jee:org.restlet.ext.atom:$restletVersion",
+                  "org.restlet.jee:org.restlet.ext.servlet:$restletVersion",
+                  "org.restlet.jee:org.restlet.ext.slf4j:$restletVersion",
+                  "org.restlet.jee:org.restlet.ext.jackson:$restletVersion"
+          ],
+          servlet: "javax.servlet:javax.servlet-api:$servletVersion",
+
+          zest_api: "org.apache.zest.core:org.apache.zest.core.api:$zestVersion",
+          zest_spi: "org.apache.zest.core:org.apache.zest.core.spi:$zestVersion",
+          zest_bootstrap: "org.apache.zest.core:org.apache.zest.core.bootstrap:$zestVersion",
+          zest_runtime: "org.apache.zest.core:org.apache.zest.core.runtime:$zestVersion",
+          zest_testsupport: "org.apache.zest.core:org.apache.zest.core.testsupport:$zestVersion",
+          zest_restlet: "org.apache.zest.library:org.apache.zest.library.restlet:$zestVersion",
+          zest_scheduler: "org.apache.zest.library:org.apache.zest.library.scheduler:$zestVersion",
+          zest_file_es: "org.apache.zest.extension:org.apache.zest.entitystore.file:$zestVersion",
+          zest_rdf_idx: "org.apache.zest.extension:org.apache.zest.indexing.rdf:$zestVersion",
+
+          junit: "junit:junit:$junitVersion",
+          mockito: "org.mockito:mockito-core:$mockitoVersion"
+  ]
+}

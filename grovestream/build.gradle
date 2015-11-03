@@ -1,0 +1,12 @@
+dependencies{
+  compile project(":trucking.model")
+  compile project(":trucking.rest-client")
+  compile project(":trucking.rest-common")
+
+  compile libraries.zest_api
+  compile libraries.zest_restlet
+
+  compile libraries.jackson_mapper
+  compile libraries.restlet
+
+}

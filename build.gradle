@@ -1,0 +1,540 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+project.ext {
+  title = "SensorSink"
+  description = "SensorSink is a system to collect, store, aggregate, analyze sensor data from Internet of Things."
+  testFailures = [ ]
+  groovycMain_mx = "500m"
+  groovycMain_permSize = "512m"
+  groovycMain_maxPermSize = "512m"
+}
+
+buildscript {
+  repositories {
+    maven { url "https://plugins.gradle.org/m2/" }
+    jcenter()
+  }
+  dependencies {
+    classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'maven-publish-auth'
+apply plugin: 'project-report'
+apply from: 'libraries.gradle'
+
+targetCompatibility = "1.8"
+sourceCompatibility = "1.8"
+
+// Collect the modules that fulfills the Release Criteria.
+project.ext {
+//  releaseSpec = new org.apache.zest.gradle.plugin.ModuleReleaseSpecification()
+//  releaseApprovedProjects = allprojects.findAll( { p -> rootProject.releaseSpec.satisfiedBy( p ) } )
+  releaseApprovedProjects = allprojects.findAll( { p -> true } )
+}
+
+// External tools BEGIN ---------------------------------------------------
+
+// IDEA plugin configuration
+idea.project.ipr {
+  withXml { provider ->
+    provider.node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
+  }
+}
+
+// External tools END -----------------------------------------------------
+
+// Define repositories URLs here so we can reuse them in the build script
+// Needed as Gradle forbid access to declared repositories URLs by design
+// Releasable submodules should not declare repositories in their own build files
+def repos_urls = [
+        mavenCentral: "http://repo1.maven.org/maven2/",
+        ops4j: "http://repository.ops4j.org/maven2/",
+        restlet: 'http://maven.restlet.org/',
+        clojars: "http://clojars.org/repo/",
+]
+
+allprojects {
+
+  apply plugin: 'eclipse'
+  apply plugin: 'idea'
+  apply plugin: 'java'
+  apply plugin: 'project-report'
+  apply plugin: 'maven'
+
+
+  defaultTasks 'classes', 'test'
+
+  group = name == 'org.sensorsink'
+  if( version == 'unspecified' ) {
+    version = System.properties.version ?: "0"
+  }
+
+  // UTF-8 For all compilations and javadocs
+  // Deprecation warnings for all compilations
+  // Unchecked warnings for non-test core compilations
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:deprecation"
+  }
+  if("core".equals(group)) {
+    tasks.matching({ task -> task instanceof JavaCompile && !task.name.contains('test') }).
+            each({ task -> task.options.compilerArgs << "-Xlint:unchecked" })
+  }
+  tasks.withType(Javadoc) {
+    options.encoding = 'UTF-8'
+    options.docEncoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+    options.noTimestamp = true
+    options.links = [
+            'http://docs.oracle.com/javase/7/docs/api/',
+            'http://www.joda.org/joda-time/apidocs/',
+            'http://www.json.org/javadoc/',
+            'http://junit.org/javadoc/latest/'
+    ]
+    // exclude '**/internal/**'
+  }
+
+  repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { name 'ops4j-repo'; url repos_urls.ops4j }
+    maven { name 'restlet-repo'; url repos_urls.restlet }
+    maven { name 'clojars-repo'; url repos_urls.clojars }
+  }
+
+  configurations {
+    archives
+    deployerJars
+    provided
+    compile.extendsFrom provided
+    runtime.extendsFrom compile
+  }
+
+  dependencies {
+    testCompile( libraries.ant )
+    testCompile( libraries.ant_junit )
+    testCompile( libraries.junit )
+  }
+
+  test.onlyIf { !project.hasProperty( 'skipTests' ) }
+  test {
+    testLogging {
+      info {
+        exceptionFormat "full"
+      }
+    }
+  }
+
+  sourceSets {
+    docs {
+      resources {
+        srcDir 'src/docs'
+      }
+    }
+  }
+
+  project.ext {
+    javaDir = new File( "$projectDir/src/main/java" )
+    scalaDir = new File( "$projectDir/src/main/scala" )
+    groovyDir = new File( "$projectDir/src/main/groovy")
+    documentationDir = new File( "$projectDir/src/docs" )
+    testJavaDir = new File( "$projectDir/src/tests/java" )
+    testScalaDir = new File( "$projectDir/src/tests/scala" )
+    testGroovyDir = new File( "$projectDir/src/tests/groovy")
+  }
+
+  // Actual code projects BEGIN -------------------------------------------
+  if( ext.javaDir.isDirectory() || ext.scalaDir.isDirectory() || ext.groovyDir.isDirectory() ||
+      ext.testJavaDir.isDirectory() || ext.testScalaDir.isDirectory() || ext.testGroovyDir.isDirectory() )
+  {
+    apply plugin: 'jacoco'
+    apply plugin: 'osgi'
+
+//    jar {
+//      manifest {
+//        license = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//        docURL = 'https://sensorsink.org'
+//        description = project.description ?: 'SensorSink.org™ is a platform for collection, storage, aggregation and analysis of Internet of Things data.'
+//        vendor = 'Bali Automation, https://www.bali.io'
+//        instruction '-debug', 'true'
+//      }
+//    }
+
+    task sourceJar( type: Jar ) {
+      classifier = "sources"
+      from sourceSets.main.allSource
+    }
+
+    task testSourceJar( type: Jar ) {
+      classifier = "testsources"
+      from sourceSets.test.allSource
+    }
+
+    task javadocJar( type: Jar ) {
+      classifier = "javadoc"
+      from javadoc.destinationDir
+      dependsOn javadoc
+    }
+
+    artifacts {
+      archives sourceJar, javadocJar
+    }
+
+    def testProperties = [
+            'proxySet': System.properties[ 'proxySet' ],
+            'proxyHost': System.properties[ 'proxyHost' ],
+            'proxyPort': System.properties[ 'proxyPort' ] ]
+
+    test {
+      maxHeapSize = "1024m"
+      systemProperties = testProperties
+      systemProperties['user.dir'] = workingDir // GRADLE-2859
+      ignoreFailures = true
+      reports.html.enabled(true)
+      afterSuite { descriptor, result ->
+        if( result.resultType == TestResult.ResultType.FAILURE )
+        {
+          rootProject.ext.testFailures << project
+        }
+      }
+    }
+    jacoco {
+      toolVersion = '0.7.5.201505241946'
+    }
+
+//    // Create checkstyle report
+//    task checkstyleReport( type: Xslt, dependsOn: check ) {
+//      source project.checkstyle.reportsDir
+//      include '*.xml'
+//      destDir = file( "build/reports/checkstyle/" )
+//      extension = 'html'
+//      stylesheetFile = file( "$rootProject.projectDir/etc/checkstyle-noframes.xsl" )
+//    }
+//
+
+    // Dependency Report generate only the runtime configuration
+    // The report is packaged in the SDK distributions
+    dependencyReport {
+      configurations = [ project.configurations.runtime ]
+    }
+
+    task minBuild {
+      dependsOn classes
+      dependsOn test
+    }
+
+  }
+  // Actual code projects END ---------------------------------------------
+
+  idea.module.iml {
+    whenMerged { module ->
+      module.dependencies*.exported = true
+    }
+  }
+} // allprojects END -------------------------------------------------------
+
+gradle.taskGraph.whenReady {taskGraph ->
+  taskGraph.allTasks.last().doLast {
+    if( rootProject.ext.testFailures )
+    {
+      println "\nTest failures in:"
+      rootProject.ext.testFailures.unique().each { project -> println "  " + project.name }
+      println ""
+      throw new RuntimeException( "There was TEST FAILURES!! See list above." )
+    }
+  }
+}
+
+task globalTestReport( type: TestReport ) {
+  destinationDir = file("$buildDir/reports/tests")
+  reportOn subprojects*.test
+}
+
+test {
+  dependsOn subprojects*.test, globalTestReport
+  reports.html.enabled = false
+}
+
+// Jacoco
+configurations {
+  jacoco
+}
+dependencies {
+  jacoco 'org.jacoco:org.jacoco.ant:0.7.5.201505241946'
+}
+// Generate a global code codeverage report
+task coverageReport {
+  dependsOn subprojects*.test
+  def outputPath = "build/reports/coverage"
+  inputs.dir subprojects.collect { p -> "${p.buildDir.path}/jacoco" }
+  outputs.dir outputPath
+  doLast {
+    def coveredProjects = subprojects.findAll { p -> new File( "${p.buildDir.path}/jacoco" ).exists() }
+    def coreProjects = coveredProjects.findAll { p -> true }
+    ant {
+      taskdef name:'jacocoreport', classname: 'org.jacoco.ant.ReportTask', classpath: configurations.jacoco.asPath
+      mkdir dir: outputPath
+      jacocoreport {
+        executiondata {
+          coveredProjects.collect { p -> fileset( dir: "${p.buildDir.path}/jacoco" ) { include( name: '*.exec' ) } }
+        }
+        structure( name: "SensorSink Trucking" ) {
+          group( name: "Core" ) {
+            classfiles { coreProjects.collect { p -> fileset dir: "${p.buildDir.path}/classes/main" } }
+            sourcefiles { coreProjects.collect { p -> fileset dir: "${p.projectDir.path}/src/main/java" } }
+          }
+        }
+        csv  destfile: "${outputPath}/jacoco.csv", encoding: "UTF-8"
+        xml  destfile: "${outputPath}/jacoco.xml", encoding: "UTF-8"
+        html destdir:  outputPath, encoding: "UTF-8", locale: "en", footer: "SensorSink™ Trucking"
+      }
+    }
+  }
+}
+check.dependsOn coverageReport
+
+
+// Build the whole SDK public Javadoc
+task javadocs( type: Javadoc ) {
+
+  options.docFilesSubDirs = true
+  options.encoding = "UTF-8"
+  options.overview = "${rootProject.projectDir}/src/javadoc/overview.html"
+  title = "${rootProject.title} ${version}"
+  def apiSources = releaseApprovedProjects.findAll( { project -> true } )
+  source apiSources.collect { project ->
+    project.sourceSets.main.allJava
+  }
+  destinationDir = project.file( "$project.docsDir/javadocs" )
+  // Might need a classpath
+  classpath = files( apiSources.collect { project ->
+    project.sourceSets.main.compileClasspath
+  } )
+  options.group( [ "Core API": [ "org.sensorsink", "org.sensorsink.*" ],
+                   "Core Rest": [ "org.sensorsink.rest", "org.sensorsink.rest.*" ]
+  ] )
+
+}
+
+task archiveJavadocs(type: Copy ) {
+  dependsOn javadocs
+
+  if( rootProject.version == '0' || rootProject.version.contains( "SNAPSHOT" ) )
+  {
+    into( "$rootProject.projectDir/../website/content/java/develop/javadocs/" )
+  }
+  else
+  {
+    into( "$rootProject.projectDir/../website/content/java/$version/javadocs/" )
+  }
+  from( 'build/docs/javadoc/' )
+}
+
+// Build All
+task buildAll( dependsOn: [
+        javadocs,
+        check,
+        jar,
+        subprojects*.dependencyReport,
+        subprojects*.assemble,
+] ) { }
+
+def srcDistFilesImages = copySpec {
+  from '.'
+  include '*.txt'
+  include 'doap.rdf'
+  include '*.gradle'
+  include 'gradlew*'
+  include 'gradle/**'
+  include 'etc/**'
+  include 'buildSrc/**'
+  include 'src/**'
+  releaseApprovedProjects.each { p ->
+    def relPath = new File( project.projectDir.toURI().relativize( p.projectDir.toURI() ).toString() )
+    include "$relPath/**"
+  }
+  include 'manual/**'
+  include 'samples/**'
+  include 'tests/**'
+  include 'tutorials/**'
+  // Filtered, see below
+  exclude 'settings.gradle'
+  exclude 'gradle.properties'
+  // Excludes
+  exclude '**/build/'               // Build output
+  exclude 'derby.log'               // Derby test garbage
+  exclude '**/*.iml'                // IDEA files
+  exclude '**/*.ipr'                // IDEA files
+  exclude '**/*.iws'                // IDEA files
+  exclude '**/.idea'                // IDEA files
+  exclude '**/out/*'                // IDEA build output
+  exclude '**/.classpath'           // Eclipse files
+  exclude '**/.project'             // Eclipse files
+  exclude '**/.settings'            // Eclipse files
+  exclude '**/.nb-gradle/'          // Netbeans files
+  exclude '**/.nb-gradle*'          // Netbeans files
+  exclude '**/.git/'                // Git directories
+  exclude '**/.git*'                // Git files
+  exclude '**/.gradle/'             // Gradle management files
+  exclude '**/.gradletasknamecache' // Gradle cache
+  into '.'
+}
+
+task srcDistFilteredFiles() {
+  // Generates various files for the source distribution
+  // - settings.gradle
+  // - gradle.properties to set version !
+  def filteredDir = new File( "$project.buildDir/tmp/srcDistFilteredFiles")
+  outputs.file filteredDir
+  doLast {
+    // Settings
+    def settingsFile = new File( filteredDir,  'settings.gradle' )
+    settingsFile.parentFile.mkdirs()
+    def filteredSettings = ''
+    project.file( 'settings.gradle' ).readLines().each { line ->
+      if( line.contains( '\'libraries:' ) || line.contains( '\'extensions:' ) || line.contains( '\'tools:' ) ) {
+        def accepted = false
+        releaseApprovedProjects.collect{it.projectDir}.each { acceptedProjectDir ->
+          if( line.contains( "'${acceptedProjectDir.parentFile.name}:${acceptedProjectDir.name}'" ) ) {
+            accepted = true
+          }
+        }
+        if( accepted ) {
+          filteredSettings += "$line\n"
+        }
+      } else {
+        filteredSettings += "$line\n"
+      }
+    }
+    settingsFile.text = filteredSettings
+    // gradle.properties
+    def gradlePropsFile = new File( filteredDir, 'gradle.properties' )
+    gradlePropsFile.parentFile.mkdirs()
+    gradlePropsFile.text = project.file( 'gradle.properties' ).text + "\nskipSigning=true\nskipAsciidocIfAbsent=true\n\nversion=$version\n"
+  }
+}
+
+def srcDistFilteredFilesImage = copySpec {
+  from srcDistFilteredFiles
+  into '.'
+}
+
+def srcDistImage = copySpec {
+  into "sensorsink-$version-src"
+  with srcDistFilesImages
+  with srcDistFilteredFilesImage
+}
+
+def reportsDistImage = copySpec {
+  from "$buildDir/reports"
+  into( "docs/reports" )
+}
+
+def docsImage = copySpec {
+  from "build/docs"
+  from "manual/build/docs/website"
+  into( "docs" )
+}
+
+def libsImage = copySpec {
+  releaseApprovedProjects.collect { proj ->
+    into( "libs/" ) {
+      from proj.configurations.archives.artifacts.files
+      exclude '**-testsources.jar'
+      exclude '**/*.asc'
+    }
+  }
+}
+
+def binDistNoticesImage = copySpec {
+  from( "$projectDir/LICENSE.txt")
+  from( "$projectDir/src/bin-dist" )
+  into( "." )
+}
+
+def binDistImage = copySpec {
+  into "sensorsink-$version-bin"
+  with binDistNoticesImage
+  with docsImage
+  with reportsDistImage
+  with libsImage
+}
+
+task zipSources( type: Zip ) {
+  baseName = 'sensorsink'
+  with srcDistImage
+  classifier = 'src'
+}
+
+task tarSources( type: Tar ) {
+  baseName = 'sensorsink'
+  with srcDistImage
+  compression = Compression.GZIP
+  classifier = 'src'
+}
+
+task zipBinaries( type: Zip, dependsOn: buildAll ) {
+  baseName = 'sensorsink'
+  classifier = 'bin'
+  with binDistImage
+}
+
+task tarBinaries( type: Tar, dependsOn: buildAll ) {
+  baseName = 'sensorsink'
+  classifier = 'bin'
+  compression = Compression.GZIP
+  with binDistImage
+}
+
+// Checksum distributions
+tasks.withType( Zip ) { task ->
+  task.doLast {
+    ant.checksum file: task.archivePath, algorithm: 'MD5'
+    ant.checksum file: task.archivePath, algorithm: 'SHA-512'
+  }
+}
+tasks.withType( Tar ) { task ->
+  task.doLast {
+    ant.checksum file: task.archivePath, algorithm: 'MD5'
+    ant.checksum file: task.archivePath, algorithm: 'SHA-512'
+  }
+}
+
+task dist( type: Copy, dependsOn: install ) {
+  description "Unpack the binary distribution"
+  group = "distributions"
+  with binDistImage
+  into "$buildDir/dist"
+}
+
+//
+// This is a task that generates the gradlew scripts, allowing users to run gradle without having gradle installed
+// on their system.
+// This task should be run by "build master" and the resulting ouput committed to source control.  Its outputs include:
+//  1) /gradlew which is the *NIX shell script for executing builds
+//  2) /gradlew.bat which is the windows bat script for for executing builds
+//  3) /gradle/wrapper which is a directory named by the "jarPath" config which contains other needed files.
+task wrapper( type: Wrapper ) {
+  gradleVersion = '2.8'
+}

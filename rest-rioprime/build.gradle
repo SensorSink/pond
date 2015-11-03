@@ -1,0 +1,11 @@
+dependencies{
+  compile project(":trucking.rest-common")
+  compile project(":trucking.rest-client")
+  compile project(":trucking.security")
+
+  compile libraries.zest_api
+  compile libraries.zest_restlet
+
+  compile libraries.restlet
+
+}

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+read -p "environment:" ENVIRON
+read -p "access host:" ENTRYHOST
+
+mkdir -p $HOME/.sensorsink/$ENVIRON/
+echo "$ENTRYHOST" >$HOME/.sensorsink/$ENVIRON/host.config
+
