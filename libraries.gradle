@@ -1,7 +1,25 @@
 
+/*
+ * Copyright 2015 Niclas Hedhman, niclas@hedhman.org
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 def antVersion = '1.9.5'
 def cassandraClientVersion = '2.1.7'
 def jacksonVersion = '2.5.4'
+def jettyVersion = '9.3.5.v20151012'
+def jolokiaVersion = '1.3.2'
 def restletVersion = '2.3.4'
 def servletVersion = '2.5'
 def zestVersion = '0'
@@ -11,28 +29,27 @@ def mockitoVersion = '1.10.19'
 
 rootProject.ext {
   libraries = [
-          // Ant
-          ant: "org.apache.ant:ant:$antVersion",
-          ant_junit: "org.apache.ant:ant-junit:$antVersion",
-          junit: "org.apache.ant:ant-junit:$antVersion",
-
           jackson_mapper: "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+          jetty: "org.eclipse.jetty:jetty-project:$jettyVersion",
           restlet: [
                   "org.restlet.jee:org.restlet:$restletVersion",
 //                  "org.restlet.jee:org.restlet.ext.ssl:$restletVersion",
                   "org.restlet.jee:org.restlet.ext.atom:$restletVersion",
                   "org.restlet.jee:org.restlet.ext.servlet:$restletVersion",
                   "org.restlet.jee:org.restlet.ext.slf4j:$restletVersion",
+                  "org.restlet.jee:org.restlet.ext.jaas:$restletVersion",
                   "org.restlet.jee:org.restlet.ext.jackson:$restletVersion"
           ],
           servlet: "javax.servlet:javax.servlet-api:$servletVersion",
-
+          jolokia: "org.jolokia:jolokia-war:$jolokiaVersion",
           zest_api: "org.apache.zest.core:org.apache.zest.core.api:$zestVersion",
           zest_spi: "org.apache.zest.core:org.apache.zest.core.spi:$zestVersion",
           zest_bootstrap: "org.apache.zest.core:org.apache.zest.core.bootstrap:$zestVersion",
           zest_runtime: "org.apache.zest.core:org.apache.zest.core.runtime:$zestVersion",
           zest_testsupport: "org.apache.zest.core:org.apache.zest.core.testsupport:$zestVersion",
+          zest_jmx: "org.apache.zest.library:org.apache.zest.library.jmx:$zestVersion",
           zest_restlet: "org.apache.zest.library:org.apache.zest.library.restlet:$zestVersion",
+          zest_rest_client: "org.apache.zest.library:org.apache.zest.library.rest-client:$zestVersion",
           zest_scheduler: "org.apache.zest.library:org.apache.zest.library.scheduler:$zestVersion",
           zest_file_es: "org.apache.zest.extension:org.apache.zest.entitystore.file:$zestVersion",
           zest_rdf_idx: "org.apache.zest.extension:org.apache.zest.indexing.rdf:$zestVersion",

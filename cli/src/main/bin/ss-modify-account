@@ -1,0 +1,73 @@
+#!/bin/sh
+#
+#
+
+printout()
+{
+    echo \
+    { \
+        \"status\" : \"error\", \"error-text\" : \"$1\", \"usage\" : { \
+            \"command\" : \"ss modify account NAME ORGNAME ADDRESS1 ADDRESS2 ZIPCODE CITY COUNTRY \", \
+            \"arguments\" : [ \
+                { \"NAME\"     : \"The name of the account to be updated. \" }, \
+                { \"ORGNAME\"  : \"The name of the organization. \" }, \
+                { \"ADDRESS1\" : \"First address line. \" }, \
+                { \"ADDRESS2\" : \"Second address line. \" }, \
+                { \"ZIPCODE\"  : \"Zip code. \" }, \
+                { \"CITY\"     : \"City. \" }, \
+                { \"COUNTRY\"  : \"Country. \" } \
+            ] \
+        } \
+    }
+}
+
+read ACTIVE <$HOME/.sensorsink/active.env
+read ACCOUNT NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
+
+if [ "$1" == "" ] ; then
+    printout "Missing NAME ORGNAME ADDRESS1 ADDRESS2 ZIPCODE CITY COUNTRY"
+    exit 1
+fi
+
+if [ "$2" == "" ] ; then
+    printout "Missing ORGNAME ADDRESS1 ADDRESS2 ZIPCODE CITY COUNTRY"
+    exit 1
+fi
+
+if [ "$3" == "" ] ; then
+    printout "Missing ADDRESS1 ADDRESS2 ZIPCODE CITY COUNTRY"
+    exit 1
+fi
+
+if [ "$4" == "" ] ; then
+    printout "Missing ADDRESS2 ZIPCODE CITY COUNTRY"
+    exit 1
+fi
+
+if [ "$5" == "" ] ; then
+    printout "Missing ZIPCODE CITY COUNTRY"
+    exit 1
+fi
+
+if [ "$6" == "" ] ; then
+    printout "Missing CITY COUNTRY"
+    exit 1
+fi
+
+if [ "$7" == "" ] ; then
+    printout "COUNTRY"
+    exit 1
+fi
+
+curl -qs -L --user $NAME:$PASS \
+     -d "organizationName=$2"  \
+     -d "address1=$3"  \
+     -d "address2=$4"  \
+     -d "zipcode=$5"  \
+     -d "city=$6"  \
+     -d "country=$7"  \
+     -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     http://$ENTRYHOST/api/1/accounts/$1/modifyOrganization
+

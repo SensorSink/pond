@@ -3,7 +3,7 @@
 #
 
 read ACTIVE <$HOME/.sensorsink/active.env
-read NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ACCOUNT NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
 read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
 
-curl -qs -L --user $NAME:$PASS -H "Accept: application/json" -X GET http://$ENTRYHOST/api/1/devices/$1/
+curl -qs -L --user $NAME:$PASS -H "Accept: application/json" -X GET http://$ENTRYHOST/api/1/accounts/$ACCOUNT/devices/$1/

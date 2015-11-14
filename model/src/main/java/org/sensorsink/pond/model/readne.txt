@@ -1,0 +1,7 @@
+
+An Account has 1..n Users
+An Account has 0..n Devices
+
+User has AccessCredentials
+
+Device has AccessCredentials

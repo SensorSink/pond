@@ -2,12 +2,13 @@
 
 
 read -p "environemnt:" ENVIRON
+read -p "account:" ACCOUNT
 read -p "username:" NAME
 read -p "password:" -s PASSWD
 
 mkdir -p $HOME/.sensorsink/credentials
 chmod 700 $HOME/.sensorsink/credentials
 
-echo "$NAME $PASSWD" >$HOME/.sensorsink/credentials/$ENVIRON.creds
+echo "$ACCOUNT $NAME $PASSWD" >$HOME/.sensorsink/credentials/$ENVIRON.creds
 echo ""
 echo "Logged in."

@@ -1,2 +1,5 @@
+*.ipr
 *.iml
 build/
+out/
+zest/

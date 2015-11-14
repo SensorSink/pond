@@ -1,21 +1,20 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright 2015 Niclas Hedhman, niclas@hedhman.org
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+group = "sensorsink"
 
 project.ext {
   title = "SensorSink"
@@ -33,6 +32,7 @@ buildscript {
   }
   dependencies {
     classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
+    classpath 'se.transmode.gradle:gradle-docker:1.2'
   }
 }
 
@@ -42,6 +42,9 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish-auth'
 apply plugin: 'project-report'
 apply from: 'libraries.gradle'
+apply plugin: 'war'
+apply plugin: 'docker'
+
 
 targetCompatibility = "1.8"
 sourceCompatibility = "1.8"
@@ -97,10 +100,7 @@ allprojects {
     options.encoding = 'UTF-8'
     options.compilerArgs << "-Xlint:deprecation"
   }
-  if("core".equals(group)) {
-    tasks.matching({ task -> task instanceof JavaCompile && !task.name.contains('test') }).
-            each({ task -> task.options.compilerArgs << "-Xlint:unchecked" })
-  }
+
   tasks.withType(Javadoc) {
     options.encoding = 'UTF-8'
     options.docEncoding = 'UTF-8'
@@ -132,8 +132,6 @@ allprojects {
   }
 
   dependencies {
-    testCompile( libraries.ant )
-    testCompile( libraries.ant_junit )
     testCompile( libraries.junit )
   }
 
@@ -223,16 +221,6 @@ allprojects {
       toolVersion = '0.7.5.201505241946'
     }
 
-//    // Create checkstyle report
-//    task checkstyleReport( type: Xslt, dependsOn: check ) {
-//      source project.checkstyle.reportsDir
-//      include '*.xml'
-//      destDir = file( "build/reports/checkstyle/" )
-//      extension = 'html'
-//      stylesheetFile = file( "$rootProject.projectDir/etc/checkstyle-noframes.xsl" )
-//    }
-//
-
     // Dependency Report generate only the runtime configuration
     // The report is packaged in the SDK distributions
     dependencyReport {
@@ -321,7 +309,7 @@ task javadocs( type: Javadoc ) {
   options.docFilesSubDirs = true
   options.encoding = "UTF-8"
   options.overview = "${rootProject.projectDir}/src/javadoc/overview.html"
-  title = "${rootProject.title} ${version}"
+  title = "SensorSink Pond ${version}"
   def apiSources = releaseApprovedProjects.findAll( { project -> true } )
   source apiSources.collect { project ->
     project.sourceSets.main.allJava
@@ -331,8 +319,12 @@ task javadocs( type: Javadoc ) {
   classpath = files( apiSources.collect { project ->
     project.sourceSets.main.compileClasspath
   } )
-  options.group( [ "Core API": [ "org.sensorsink", "org.sensorsink.*" ],
-                   "Core Rest": [ "org.sensorsink.rest", "org.sensorsink.rest.*" ]
+  options.group( [ "Model": [ "org.sensorsink.pond.model", "org.sensorsink.pond.model.*" ],
+                   "Sinks": [ "org.sensorsink.pond.sink", "org.sensorsink.pond.sink.*" ],
+                   "Security": [ "org.sensorsink.pond.security", "org.sensorsink.pond.security.*" ],
+                   "Bootstrap": [ "org.sensorsink.pond.bootstrap", "org.sensorsink.pond.bootstrap.*" ],
+                   "Rest": [ "org.sensorsink.pond.rest", "org.sensorsink.pond.rest.*" ],
+                   "Web": [ "org.sensorsink.pond.web", "org.sensorsink.pond.web.*" ]
   ] )
 
 }
@@ -527,6 +519,19 @@ task dist( type: Copy, dependsOn: install ) {
   with binDistImage
   into "$buildDir/dist"
 }
+
+//docker {
+//  baseImage "tomcat:8-jre8"
+//  maintainer 'Niclas Hedhman "niclas@hedhman.org"'
+//}
+//
+//task pondDocker(type: Docker) {
+//  applicationName = "pond"
+//}
+//
+//distDocker {
+//  exposePort 8338
+//}
 
 //
 // This is a task that generates the gradlew scripts, allowing users to run gradle without having gradle installed

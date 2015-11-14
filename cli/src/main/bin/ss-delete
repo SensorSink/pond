@@ -8,10 +8,23 @@ cd $CURRENTDIR
 
 COMMAND=$1
 shift
+if [ -n "$2" ] ; then
+  echo "["
+  CLOSEBRACKET="true"
+fi
 
-if [ -f $SS_HOME/ss-delete-$COMMAND ]; then
-  $SS_HOME/ss-delete-$COMMAND "$@"
-else
-  echo "ERROR: Can't delete a $COMMAND"
-  exit 1
+while [ -n "$1" ] ; do
+  echo "$DELIM"
+  DELIM=","
+  if [ -f $SS_HOME/ss-inspect-$COMMAND ]; then
+    $SS_HOME/ss-delete-$COMMAND $1
+  else
+    echo "ERROR: Can't delete $COMMAND"
+    exit 1
+  fi
+  shift
+done
+
+if [ -n "$CLOSEBRACKET" ]; then
+   echo "]"
 fi

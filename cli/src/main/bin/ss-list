@@ -7,7 +7,7 @@ export SS_HOME=`pwd`
 cd $CURRENTDIR
 
 read ACTIVE <$HOME/.sensorsink/active.env
-read NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ACCOUNT NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
 read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
 
 COMMAND=$1

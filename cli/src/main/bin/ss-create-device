@@ -7,25 +7,44 @@ printout()
     echo \
     { \
         \"status\" : \"error\", \"error-text\" : \"$1\", \"usage\" : { \
-            \"command\" : \"ss create device DNS-NAME [TYPE]\", \
+            \"command\" : \"ss create device DNS-NAME USER PASSWORD [TYPE] [PORT]\", \
             \"arguments\" : [ \
-                { \"DNS-NAME\"  : \"The DNS name of the device. \" }, \
-                { \"TYPE\"      : \"The device type. Default:generic.\" }, \
+                { \"DNS-NAME\" : \"The DNS name of the device. \" }, \
+                { \"USER\"     : \"User name to access the device.\" }, \
+                { \"PASSWORD\" : \"Password to access the device.\" }, \
+                { \"TYPE\"     : \"The device type. Default:generic.\" }, \
+                { \"PORT\"     : \"The port of the device. Default:type specific.\" } \
             ] \
         } \
     }
 }
 
 read ACTIVE <$HOME/.sensorsink/active.env
-read NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ACCOUNT NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
 read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
 
 if [ "$1" == "" ] ; then
-    printout "Missing NAME URL ENV_CHAIN"
+    printout "Missing DNS-NAME USER PASSWORD"
     exit 1
 fi
 
 if [ "$2" == "" ] ; then
+    printout "Missing USER PASSWORD"
+    exit 1
+fi
+
+if [ "$3" == "" ] ; then
+    printout "Missing PASSWORD"
+    exit 1
+fi
+
+if [ "$4" == "" ] ; then
+    PORT_NO="-1"
+else
+    PORT_NO=$2
+fi
+
+if [ "$5" == "" ] ; then
     DEVICE_TYPE="generic"
 else
     DEVICE_TYPE=$2
@@ -33,16 +52,22 @@ fi
 
 INSPECT=`$SS_HOME/ss inspect device $1`
 EXISTS=`echo $INSPECT | grep "\"code\": 404,"`
+UNAUTHORIZED=`echo $INSPECT | grep "\"code\": 401,"`
 OTHERERROR=`echo $INSPECT | grep "\"code\": 400,"`
 if [ "$EXISTS" != "" ] ; then
   curl -qs -L --user $NAME:$PASS \
      -d "name=$1"  \
+     -d "user=$2"  \
+     -d "password=$3"  \
+     -d "port=$PORT_NO"  \
      -d "type=$DEVICE_TYPE"  \
      -H "Accept: application/json" \
-     http://$ENTRYHOST/api/1/devices/create
+     http://$ENTRYHOST/api/1/accounts/$ACCOUNT/devices/create
 elif [ "$OTHERERROR" != "" ] ; then
   ERROR=`echo $INSPECT | sed 's/.*\"description\": "//' | sed 's/\",.*//'`
   echo "ERROR: $ERROR"
+elif [ "$UNAUTHORIZED" != "" ] ; then
+  echo "ERROR: Not authorized to create device."
 else
-  echo "ERROR: Application \"$1\" already exists."
+  echo "ERROR: Device \"$1\" already exists."
 fi

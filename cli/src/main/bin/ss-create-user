@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+#
+
+printout()
+{
+    echo \
+    { \
+        \"status\" : \"error\", \"error-text\" : \"$1\", \"usage\" : { \
+            \"command\" : \"ss create user LOGIN_NAME FULLNAME PASSWORD\", \
+            \"arguments\" : [ \
+                { \"LOGIN_NAME\" : \"The Login name of the user. \" }, \
+                { \"FULLNAME\"   : \"The full name of the user\" }, \
+                { \"EMAIL\   "   : \"The email of the user\" }, \
+                { \"PASSWORD\"   : \"The Password of the user.\" } \
+            ] \
+        } \
+    }
+}
+
+read ACTIVE <$HOME/.sensorsink/active.env
+read ACCOUNT NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
+
+if [ "$1" == "" ] ; then
+    printout "Missing LOGIN_NAME FULLNAME PASSWORD"
+    exit 1
+fi
+
+if [ "$2" == "" ] ; then
+    printout "Missing FULLNAME PASSWORD"
+    exit 1
+fi
+
+if [ "$3" == "" ] ; then
+    printout "Missing PASSWORD"
+    exit 1
+fi
+
+INSPECT=`$SS_HOME/ss inspect user $1`
+EXISTS=`echo $INSPECT | grep "\"code\": 404,"`
+UNAUTHORIZED=`echo $INSPECT | grep "\"code\": 401,"`
+OTHERERROR=`echo $INSPECT | grep "\"code\": 400,"`
+if [ "$EXISTS" != "" ] ; then
+  curl -qs -L --user $NAME:$PASS \
+     -d "name=$1"  \
+     -d "fullName=$2"  \
+     -d "password=$3"  \
+     -H "Accept: application/json" \
+     http://$ENTRYHOST/api/1/accounts/$ACCOUNT/devices/create
+elif [ "$OTHERERROR" != "" ] ; then
+  ERROR=`echo $INSPECT | sed 's/.*\"description\": "//' | sed 's/\",.*//'`
+  echo "ERROR: $ERROR"
+elif [ "$UNAUTHORIZED" != "" ] ; then
+  echo "ERROR: Not authorized to create user."
+else
+  echo "ERROR: User \"$1\" already exists."
+fi
