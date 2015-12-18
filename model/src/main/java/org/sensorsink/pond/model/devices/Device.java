@@ -16,22 +16,36 @@
 
 package org.sensorsink.pond.model.devices;
 
+import java.util.concurrent.ScheduledExecutorService;
 import org.apache.zest.api.association.Association;
 import org.apache.zest.api.common.Optional;
 import org.apache.zest.api.common.UseDefaults;
+import org.apache.zest.api.composite.TransientBuilderFactory;
 import org.apache.zest.api.entity.Identity;
 import org.apache.zest.api.entity.Lifecycle;
+import org.apache.zest.api.injection.scope.Service;
+import org.apache.zest.api.injection.scope.Structure;
 import org.apache.zest.api.mixin.Mixins;
 import org.apache.zest.api.property.Property;
+import org.apache.zest.api.value.ValueBuilder;
+import org.apache.zest.api.value.ValueBuilderFactory;
+import org.apache.zest.library.restlet.identity.IdentityManager;
+import org.apache.zest.library.restlet.resource.CreationParameterized;
 import org.sensorsink.pond.model.account.AccessCredentials;
 import org.sensorsink.pond.model.account.Account;
 
-@Mixins( { Device.CollectionMixin.class, DeviceLifecycleMixin.class } )
-public interface Device extends Identity, Lifecycle
+@Mixins( { Device.DeviceMixin.class, DeviceLifecycleMixin.class, Device.DeviceCreationMixin.class } )
+public interface Device extends Identity, Lifecycle, CreationParameterized<DeviceParameters>
 {
     void startCollect();
 
     void stopCollect();
+
+    void poll();
+
+    String hostName();
+
+    void modifyDevice( DeviceParameters parameters );
 
     @UseDefaults
     Property<Boolean> collecting();
@@ -39,7 +53,7 @@ public interface Device extends Identity, Lifecycle
     @UseDefaults
     Property<String> deviceType();
 
-    @UseDefaults
+    @Optional
     Property<Integer> port();
 
     @Optional
@@ -48,9 +62,22 @@ public interface Device extends Identity, Lifecycle
     @Optional
     Association<Account> account();
 
-    abstract class CollectionMixin
+    abstract class DeviceMixin
         implements Device
     {
+
+        @Structure
+        ValueBuilderFactory vbf;
+
+        @Structure
+        TransientBuilderFactory tbf;
+
+        @Service
+        ScheduledExecutorService executor;
+
+        @Service
+        private IdentityManager identityManager;
+
         @Override
         public void startCollect()
         {
@@ -68,6 +95,46 @@ public interface Device extends Identity, Lifecycle
             {
                 collecting().set( false );
             }
+        }
+
+        @Override
+        public String hostName()
+        {
+            return identityManager.extractName( identity().get() );
+        }
+
+        @Override
+        public void poll()
+        {
+            DevicePollTask pollTask = tbf.newTransient( DevicePollTask.class, identity().get() );
+            executor.submit( pollTask );
+        }
+
+        @Override
+        public void modifyDevice( DeviceParameters parameters )
+        {
+            ValueBuilder<AccessCredentials> builder = vbf.newValueBuilder( AccessCredentials.class );
+            builder.prototype().username().set( parameters.userName().get() );
+            builder.prototype().password().set( parameters.password().get() );
+            credentials().set( builder.newInstance() );
+            port().set(parameters.port().get());
+            deviceType().set( parameters.deviceType().get() );
+        }
+    }
+
+    abstract class DeviceCreationMixin
+        implements Device
+    {
+        @Override
+        public Class<DeviceParameters> parametersType()
+        {
+            return DeviceParameters.class;
+        }
+
+        @Override
+        public void parameterize( DeviceParameters parameters )
+        {
+            modifyDevice( parameters );
         }
     }
 }

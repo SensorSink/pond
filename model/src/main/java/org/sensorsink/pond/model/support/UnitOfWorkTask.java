@@ -14,26 +14,34 @@
  * limitations under the License.
  */
 
-package org.sensorsink.pond.rest.rioprime;
+package org.sensorsink.pond.model.support;
 
-import java.util.function.Consumer;
+import org.apache.zest.api.concern.Concerns;
 import org.apache.zest.api.mixin.Mixins;
-import org.apache.zest.api.property.Property;
-import org.sensorsink.pond.model.clients.ClientHandler;
-import org.sensorsink.pond.model.devices.Device;
-import org.sensorsink.pond.model.samples.Sample;
+import org.apache.zest.api.unitofwork.concern.UnitOfWorkConcern;
+import org.apache.zest.api.unitofwork.concern.UnitOfWorkPropagation;
 
-@Mixins( RioPrimeClientHandlerMixin.class )
-public interface RioPrimeClientHandler extends ClientHandler
+@Mixins( UnitOfWorkTask.Mixin.class )
+@Concerns( UnitOfWorkConcern.class)
+public interface UnitOfWorkTask extends Runnable
 {
-    void connect();
+    void execute();
 
-    interface State
+    abstract class Mixin
+        implements UnitOfWorkTask
     {
-        Property<Device> device();
 
-        Property<Consumer<Sample>> callback();
-
-        Property<Boolean> refreshOnNextPoll();
+        @Override
+        public void run()
+        {
+            try
+            {
+                execute();
+            }
+            catch( Exception e )
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

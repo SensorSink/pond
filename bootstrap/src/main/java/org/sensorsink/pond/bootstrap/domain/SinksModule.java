@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package org.sensorsink.pond.bootstrap.infrastructure;
+package org.sensorsink.pond.bootstrap.domain;
 
+import org.apache.zest.api.common.Visibility;
 import org.apache.zest.bootstrap.AssemblyException;
 import org.apache.zest.bootstrap.LayerAssembly;
 import org.apache.zest.bootstrap.ModuleAssembly;
 import org.apache.zest.bootstrap.layered.ModuleAssembler;
-import org.sensorsink.pond.model.clients.ClientHandlerFactory;
-import org.sensorsink.pond.rest.rioprime.RioPrimeClientHandler;
-import org.sensorsink.pond.rest.rioprime.RioPrimeClientHandlerFactory;
+import org.sensorsink.pond.model.sink.Sink;
+import org.sensorsink.pond.sink.elasticsearch.ElasticSearchSink;
 
-public class RestClientsModule
+public class SinksModule
     implements ModuleAssembler
 {
-    public static final String NAME = "Rest Client Module";
-
     @Override
     public ModuleAssembly assemble( LayerAssembly layer, ModuleAssembly module )
         throws AssemblyException
     {
-        module.services( ClientHandlerFactory.class).withMixins( RioPrimeClientHandlerFactory.class ).taggedWith( "RIO_PRIME" );
-        module.transients( RioPrimeClientHandler.class );
+        module.services( ElasticSearchSink.class ).visibleIn( Visibility.application );
         return module;
     }
 }

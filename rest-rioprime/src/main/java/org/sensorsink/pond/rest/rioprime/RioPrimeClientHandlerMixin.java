@@ -19,24 +19,27 @@ package org.sensorsink.pond.rest.rioprime;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import org.apache.zest.api.entity.EntityBuilder;
+import org.apache.zest.api.injection.scope.Service;
 import org.apache.zest.api.injection.scope.Structure;
 import org.apache.zest.api.injection.scope.This;
-import org.apache.zest.api.mixin.Initializable;
 import org.apache.zest.api.mixin.InitializationException;
 import org.apache.zest.api.object.ObjectFactory;
-import org.apache.zest.api.unitofwork.NoSuchEntityException;
-import org.apache.zest.api.unitofwork.UnitOfWork;
+import org.apache.zest.api.property.Property;
 import org.apache.zest.api.unitofwork.UnitOfWorkFactory;
 import org.apache.zest.api.value.ValueBuilder;
 import org.apache.zest.api.value.ValueBuilderFactory;
+import org.apache.zest.library.restlet.identity.IdentityManager;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Uniform;
@@ -44,8 +47,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.sensorsink.pond.model.account.AccessCredentials;
 import org.sensorsink.pond.model.devices.Device;
-import org.sensorsink.pond.model.points.Point;
-import org.sensorsink.pond.model.points.PointInfo;
+import org.sensorsink.pond.model.samples.Sample;
 import org.sensorsink.pond.rest.common.RestLink;
 import org.sensorsink.pond.rest.rioprime.types.BlockDTO;
 import org.sensorsink.pond.rest.rioprime.types.EdgeDTO;
@@ -59,7 +61,7 @@ import org.sensorsink.pond.rest.rioprime.types.ProgramRef;
 import org.sensorsink.pond.rest.rioprime.types.ProgramsList;
 
 public class RioPrimeClientHandlerMixin
-    implements RioPrimeClientHandler, Initializable
+    implements RioPrimeClientHandler
 {
     @This
     private State state;
@@ -72,50 +74,91 @@ public class RioPrimeClientHandlerMixin
     private List<String> trackedPoints = new CopyOnWriteArrayList<>();
     private CountDownLatch countDownLatch;
     private PointsQuery pointsQuery;
+    private volatile boolean connected = false;
 
-    @Override
-    public void initialize()
+    public void connect()
         throws InitializationException
     {
+        if( connected )
+        {
+            return;
+        }
         Device device = state.device().get();
         Integer port = device.port().get();
-        String host;
-        if( port == null )
+        String hostName;
+        if( port != null && port > 0 )
         {
-            host = device.identity().get();
+            hostName = device.hostName() + ":" + port;
         }
         else
         {
-            host = device.identity().get() + ":" + port;
+            hostName = device.hostName() + ":8778";
         }
-        origin = new Reference( "http://" + host + "/control/" );
+
+        origin = new Reference( "http://" + hostName + contextPath( hostName ) );
         EntryPointHandler onResponseHandler = new EntryPointHandler();
         RestLink entryLink = RestLink.createLink( origin, "", Method.GET );
         entryLink.followLink( origin, getUser(), getPassword(), onResponseHandler );
+        connected = true;
     }
 
-    private String getUser() {
+    private String contextPath( String hostName )
+    {
+        if( hostName.startsWith( "localhost" ) )
+        {
+            return "/c/";
+        }
+        if( hostName.startsWith( "127.0.0.1" ) )
+        {
+            return "/c/";
+        }
+        return "/control/";
+    }
+
+    private String getUser()
+    {
         AccessCredentials credentials = state.device().get().credentials().get();
+        if( credentials == null )
+        {
+            return null;
+        }
         return credentials.username().get();
     }
-    private String getPassword() {
+
+    private String getPassword()
+    {
         AccessCredentials credentials = state.device().get().credentials().get();
+        if( credentials == null )
+        {
+            return null;
+        }
         return credentials.password().get();
     }
 
     public void poll()
     {
+        connect();
         PointsRequestList pointsRequestList = new PointsRequestList();
         trackedPoints.forEach( pointsRequestList::addPoint );
 
         RestLink retrieveLink = findRetrieveLink();
-        PointsResultHandler callback = new PointsResultHandler( state.device().get() );
+        if( retrieveLink == null )
+        {
+            return;
+        }
+        PointsResultHandler callback =
+            new PointsResultHandler( state.device().get(), state.callback().get(), state.refreshOnNextPoll() );
+
         objectFactory.injectTo( callback );
         retrieveLink.followLinkWithContent( pointsRequestList, origin, getUser(), getPassword(), callback );
     }
 
     private RestLink findRetrieveLink()
     {
+        if( pointsQuery == null )
+        {
+            return null;
+        }
         return pointsQuery.getCommands()
             .stream()
             .filter( cmd -> cmd.getName().equals( "retrieve" ) )
@@ -162,7 +205,7 @@ public class RioPrimeClientHandlerMixin
                 ProgramsList programsList = mapper.readValue( response.getEntityAsText(), ProgramsList.class );
                 ArrayList<ProgramRef> programRefs = programsList.getPrograms();
 
-                countDownLatch = new CountDownLatch( programRefs.size() + 1 );  // Adding one to account for the PointsHandler
+                countDownLatch = new CountDownLatch( programRefs.size() );
                 String user = getUser();
                 String password = getPassword();
 
@@ -228,7 +271,6 @@ public class RioPrimeClientHandlerMixin
             {
                 ObjectMapper mapper = new ObjectMapper();
                 pointsQuery = mapper.readValue( response.getEntityAsText(), PointsQuery.class );
-                countDownLatch.countDown();
             }
             catch( IOException e )
             {
@@ -237,7 +279,7 @@ public class RioPrimeClientHandlerMixin
         }
     }
 
-    private class PointsResultHandler
+    public static class PointsResultHandler
         implements Uniform
     {
         @Structure
@@ -246,11 +288,18 @@ public class RioPrimeClientHandlerMixin
         @Structure
         private UnitOfWorkFactory uowf;
 
-        private final Device device;
+        @Service
+        IdentityManager identityManager;
 
-        public PointsResultHandler( Device device )
+        private final Device device;
+        private final Consumer<Sample> callback;
+        private final Property<Boolean> refreshOnNextPoll;
+
+        public PointsResultHandler( Device device, Consumer<Sample> callback, Property<Boolean> refreshOnNextPoll )
         {
             this.device = device;
+            this.callback = callback;
+            this.refreshOnNextPoll = refreshOnNextPoll;
         }
 
         @Override
@@ -260,43 +309,20 @@ public class RioPrimeClientHandlerMixin
             {
                 ObjectMapper mapper = new ObjectMapper();
                 PointsData points = mapper.readValue( response.getEntityAsText(), PointsData.class );
+                Map<String, Double> data = new HashMap<>();
                 for( Map.Entry<String, PointData> entry : points.getData().entrySet() )
                 {
-                    PointInfo info = getPointInfo( entry.getKey() );
-                    ValueBuilder<Point> builder = vbf.newValueBuilder( Point.class );
-
-                    @SuppressWarnings( "unchecked" )
-                    Point<String> prototype = builder.prototype();
-
-                    prototype.info().set( info );
-                    prototype.time().set( Instant.now() );
-
-                    //noinspection unchecked
-                    prototype.value().set( entry.getValue().getValue() );
-                    state.callback().get().accept( builder.newInstance() );
+                    data.put( entry.getKey(), entry.getValue().getValue() );
                 }
+                ValueBuilder<Sample> builder = vbf.newValueBuilder( Sample.class );
+                builder.prototype().device().set( device );
+                builder.prototype().time().set( ZonedDateTime.now().format( DateTimeFormatter.ISO_INSTANT ));
+                builder.prototype().values().set(data);
+                callback.accept( builder.newInstance() );
             }
             catch( IOException e )
             {
-                state.refreshOnNextPoll().set( true );
-            }
-        }
-
-        private PointInfo getPointInfo( String pointName )
-        {
-            String identity = device.identity().get() + "/" + pointName;
-            UnitOfWork uow = uowf.currentUnitOfWork();
-            try
-            {
-                return uow.get( PointInfo.class, identity );
-            }
-            catch( NoSuchEntityException e )
-            {
-                EntityBuilder<PointInfo> builder = uow.newEntityBuilder( PointInfo.class, identity );
-                PointInfo instance = builder.instance();
-                instance.name().set( pointName );
-                instance.device().set( device );
-                return builder.newInstance();
+                refreshOnNextPoll.set( true );
             }
         }
     }

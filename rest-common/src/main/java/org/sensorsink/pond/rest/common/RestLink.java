@@ -18,11 +18,14 @@ package org.sensorsink.pond.rest.common;
 
 import java.io.Serializable;
 import org.restlet.Context;
+import org.restlet.Request;
 import org.restlet.Uniform;
 import org.restlet.data.ChallengeScheme;
+import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.ext.jackson.JacksonRepresentation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ClientResource;
 
 public class RestLink
@@ -63,46 +66,58 @@ public class RestLink
 
     public static RestLink createLink( Reference base, String name, Method action )
     {
-        return new RestLink( action.getName(), base.toUri().resolve( name ).getPath() + "/" );
+        return new RestLink( action.getName(), base.toUri().resolve( name ).getPath() );
     }
 
-    public void followLink( Reference base, String user, String password, Uniform callback )
+    public void followLink( Reference hostBase, String user, String password, Uniform callback )
     {
-        Reference uri = new Reference( base, getPath() );
-        final ClientResource resource = new ClientResource( new Context(), uri );
-        if( user != null )
-        {
-            resource.setChallengeResponse( ChallengeScheme.HTTP_BASIC, user, password );
-        }
-        resource.setOnResponse( ( request, response ) -> {
-            try
-            {
-                callback.handle( request, response );
-            }
-            catch( RuntimeException e )
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                resource.release();
-            }
-        } );
-        resource.setMethod( Method.GET );
+        ClientResource resource = createClient( hostBase, user, password, callback );
+        Request request = resource.getRequest();
+        String msg = "Request: " + request.getResourceRef() + "\n" + request.getEntityAsText();
+        System.out.println( msg );
+        resource.handle();
+    }
+
+    public void followLinkWithContent( String entityAsText,
+                                       Reference base,
+                                       String user,
+                                       String password,
+                                       Uniform callback
+    )
+    {
+        System.out.println(entityAsText);
+        final ClientResource resource = createClient( base, user, password, callback );
+        resource.getRequest().setEntity( new StringRepresentation( entityAsText, MediaType.APPLICATION_JSON ) );
+        Request request = resource.getRequest();
+        String msg = "Request: " + request.getResourceRef() + "\n" + request.getEntityAsText();
+        System.out.println( msg );
         resource.handle();
     }
 
     public <T> void followLinkWithContent( T value, Reference base, String user, String password, Uniform callback )
     {
+        final ClientResource resource = createClient( base, user, password, callback );
+        resource.getRequest().setEntity( new JacksonRepresentation<>( value ) );
+        Request request = resource.getRequest();
+        String msg = "Request: " + request.getResourceRef() + "\n" + request.getEntityAsText();
+        System.out.println( msg );
+        resource.handle();
+    }
+
+    private ClientResource createClient( Reference base, String user, String password, Uniform callback )
+    {
         Reference uri = new Reference( base, getPath() );
         final ClientResource resource = new ClientResource( new Context(), uri );
         if( user != null )
         {
             resource.setChallengeResponse( ChallengeScheme.HTTP_BASIC, user, password );
         }
+        resource.setRetryOnError( false );
         resource.setOnResponse( ( request, response ) -> {
             try
             {
+                String msg = "Response: " + resource.getRequest().getResourceRef() + "\n" + response.getEntityAsText();
+                System.out.println( msg );
                 callback.handle( request, response );
             }
             catch( RuntimeException e )
@@ -114,19 +129,13 @@ public class RestLink
                 resource.release();
             }
         } );
-        resource.getRequest().setEntity( new JacksonRepresentation<T>( value ) );
-        resource.setMethod( Method.GET );
-        resource.handle();
+        resource.setMethod( Method.valueOf( getMethod() ) );
+        return resource;
     }
-
 
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder( "Link{" );
-        sb.append( "method='" ).append( method ).append( '\'' );
-        sb.append( ", href='" ).append( linkRef ).append( '\'' );
-        sb.append( '}' );
-        return sb.toString();
+        return "Link{" + "method='" + method + '\'' + ", href='" + linkRef + '\'' + '}';
     }
 }

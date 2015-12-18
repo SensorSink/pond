@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.sensorsink.pond.model.points;
+package org.sensorsink.pond.model.samples;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import org.apache.zest.api.association.Association;
-import org.apache.zest.api.entity.Identity;
-import org.apache.zest.api.mixin.Mixins;
 import org.apache.zest.api.property.Property;
+import org.sensorsink.pond.model.devices.Device;
 
-public interface Point<T> extends Identity
+public interface Sample
 {
+    Association<Device> device();
 
-    Property value();
+    Property<String> time();
 
-    Property<Instant> time();
-
-    Association<PointInfo> info();
+    Property<Map<String,Double>> values();
 }

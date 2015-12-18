@@ -16,69 +16,77 @@
 
 package org.sensorsink.pond.sink.elasticsearch;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.zest.api.injection.scope.Service;
-import org.apache.zest.spi.uuid.UuidIdentityGeneratorService;
+import org.apache.zest.api.mixin.Mixins;
+import org.apache.zest.api.value.ValueSerialization;
+import org.apache.zest.api.value.ValueSerializer;
+import org.apache.zest.library.restlet.identity.IdentityManager;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
-import org.restlet.data.Status;
 import org.sensorsink.pond.model.devices.Device;
-import org.sensorsink.pond.model.points.Point;
-import org.sensorsink.pond.model.points.PointInfo;
+import org.sensorsink.pond.model.samples.Sample;
 import org.sensorsink.pond.model.sink.Sink;
 import org.sensorsink.pond.rest.common.RestLink;
 
-public class ElasticSearchSink
-    implements Sink
+@Mixins( ElasticSearchSink.Mixin.class )
+public interface ElasticSearchSink extends Sink
 {
-    public static final Reference BASE_API = new Reference( "http://node1.bali.ac:9200/" );
+    Reference BASE_API = new Reference( "http://node1.bali.ac:9200/" );
 
-    public static final String USER = "niclas";
-    public static final String PASSWORD = "bfm2679";
+    String USER = "niclas";
+    String PASSWORD = "bfm2679";
 
-    @Service
-    private UuidIdentityGeneratorService uuid;
-
-    @Override
-    public void place( Point<?> point )
+    class Mixin implements Sink
     {
-        PointInfo pointInfo = point.info().get();
-        Device deviceInfo = pointInfo.device().get();
-        String deviceName = deviceInfo.identity().get();
-        final String url = BASE_API
-                           + String.format( "%s/%s/%s",
-                                            pointInfo.device().get().account().get(),
-                                            deviceName,
-                                            uuid.generate( Point.class )
-        );
 
-        System.out.println( "URL: " + url );
-        RestLink link = RestLink.createLink( BASE_API, url, Method.PUT );
+        @Service
+        ValueSerialization serialization;
 
-        IndexValue content = new IndexValue( deviceName,
-                                             pointInfo.name().get(),
-                                             point.time().get(),
-                                             point.value().toString()
-        );
+        @Service
+        private IdentityManager identityManager;
 
-        link.followLinkWithContent( content, BASE_API, USER, PASSWORD, ( request, response ) -> {
-            if( response.getStatus().equals( Status.SUCCESS_OK ) )
-            {
-                System.out.println( url + "  --> OK" );
-                response.getHeaders().stream().forEach( System.out::println );
-                System.out.println( response.getEntityAsText() );
-            }
-            else
-            {
-                System.err.println( "ERROR:" + response.getStatus() );
-            }
-        } );
-    }
+        @Override
+        public void place( Sample sample )
+        {
+            Device deviceInfo = sample.device().get();
+            String deviceName = identityManager.extractName( deviceInfo.identity().get() );
+            ZonedDateTime now = ZonedDateTime.now();
+            final String url = BASE_API
+                               + String.format( "acc-%s-%s-%s/hist-%s/%s",
+                                                sample.device().get().account().get(),
+                                                now.getYear(),
+                                                now.getMonthValue(),
+                                                deviceName,
+                                                sample.time().get()
+            );
 
-    @Override
-    public boolean isSupporting( Class<?> type )
-    {
-        return false;
+            RestLink link = RestLink.createLink( BASE_API, url, Method.PUT );
+            ValueSerializer.Options options = new ValueSerializer.Options().withoutTypeInfo().withMapEntriesAsObjects();
+            Map<String,Object> content = new HashMap<>();
+            content.putAll( sample.values().get() );
+            content.put("time", sample.time().get());
+            content.put( "device", deviceName );
+
+            link.followLinkWithContent( content, BASE_API, USER, PASSWORD, ( request, response ) -> {
+                if( response.getStatus().isError() )
+                {
+                    System.err.println( "ERROR:" + response.getStatus() );
+                }
+                else
+                {
+                    response.getHeaders().stream().forEach( System.out::println );
+                    System.out.println( response.getEntityAsText() );
+                }
+            } );
+        }
+
+        @Override
+        public boolean isSupporting( Class<?> type )
+        {
+            return false;
+        }
     }
 }

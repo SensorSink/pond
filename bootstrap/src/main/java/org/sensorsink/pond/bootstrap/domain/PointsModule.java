@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package org.sensorsink.pond.bootstrap.infrastructure;
+package org.sensorsink.pond.bootstrap.domain;
 
 import org.apache.zest.api.common.Visibility;
 import org.apache.zest.bootstrap.AssemblyException;
 import org.apache.zest.bootstrap.LayerAssembly;
 import org.apache.zest.bootstrap.ModuleAssembly;
 import org.apache.zest.bootstrap.layered.ModuleAssembler;
-import org.sensorsink.pond.sink.elasticsearch.ElasticSearchSink;
+import org.sensorsink.pond.model.samples.Sample;
 
-public class SinksModule
+public class PointsModule
     implements ModuleAssembler
 {
+    public static String NAME;
+
     @Override
     public ModuleAssembly assemble( LayerAssembly layer, ModuleAssembly module )
         throws AssemblyException
     {
-        module.services( ElasticSearchSink.class ).visibleIn( Visibility.application );
+        module.values( Sample.class ).visibleIn( Visibility.layer );
         return module;
     }
 }

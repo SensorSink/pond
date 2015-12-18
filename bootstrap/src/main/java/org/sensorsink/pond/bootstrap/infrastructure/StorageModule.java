@@ -22,6 +22,7 @@ import org.apache.zest.bootstrap.LayerAssembly;
 import org.apache.zest.bootstrap.ModuleAssembly;
 import org.apache.zest.bootstrap.layered.ModuleAssembler;
 import org.apache.zest.entitystore.file.assembly.FileEntityStoreAssembler;
+import org.apache.zest.entitystore.jdbm.assembly.JdbmEntityStoreAssembler;
 
 public class StorageModule
     implements ModuleAssembler
@@ -43,6 +44,7 @@ public class StorageModule
             .withConfig( configModule, Visibility.application )
             .assemble( module );
 
+//        new JdbmEntityStoreAssembler().assemble( module );
         return module;
     }
 }

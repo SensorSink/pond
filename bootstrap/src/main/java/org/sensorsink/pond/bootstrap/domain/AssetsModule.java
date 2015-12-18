@@ -16,16 +16,23 @@
 
 package org.sensorsink.pond.bootstrap.domain;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import org.apache.zest.api.common.Visibility;
 import org.apache.zest.bootstrap.AssemblyException;
 import org.apache.zest.bootstrap.LayerAssembly;
 import org.apache.zest.bootstrap.ModuleAssembly;
 import org.apache.zest.bootstrap.layered.ModuleAssembler;
 import org.apache.zest.library.restlet.assembly.RestletCrudModuleAssembler;
+import org.apache.zest.library.scheduler.defaults.DefaultScheduleFactoryMixin;
 import org.apache.zest.spi.uuid.UuidIdentityGeneratorService;
 import org.sensorsink.pond.model.devices.Device;
 import org.sensorsink.pond.model.devices.DeviceParameters;
 import org.sensorsink.pond.model.devices.DevicePollTask;
+import org.sensorsink.pond.model.execution.DefaultRejectionHandlerMixin;
+import org.sensorsink.pond.model.execution.DefaultScheduledExecutorMixin;
+import org.sensorsink.pond.model.execution.DefaultThreadFactoryMixin;
 
 public class AssetsModule
     implements ModuleAssembler
@@ -35,9 +42,16 @@ public class AssetsModule
         throws AssemblyException
     {
         new RestletCrudModuleAssembler( Device.class ).assemble( module );
-        module.entities( DevicePollTask.class ).visibleIn( Visibility.layer );
+        module.forMixin( Device.class ).declareDefaults().deviceType().set("RIO_PRIME");
+
+        module.transients( DevicePollTask.class ).visibleIn( Visibility.layer );
         module.values( DeviceParameters.class ).visibleIn( Visibility.application );
         module.services( UuidIdentityGeneratorService.class );
+
+        module.services( ScheduledExecutorService.class ).withMixins( DefaultScheduledExecutorMixin.class,
+                                                                      DefaultRejectionHandlerMixin.class,
+                                                                      DefaultThreadFactoryMixin.class );
+
         return module;
     }
 }

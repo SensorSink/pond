@@ -16,6 +16,8 @@
 
 package org.sensorsink.pond.model.clients;
 
+import org.apache.zest.api.unitofwork.concern.UnitOfWorkPropagation;
+
 public interface ClientHandler
 {
     void poll();

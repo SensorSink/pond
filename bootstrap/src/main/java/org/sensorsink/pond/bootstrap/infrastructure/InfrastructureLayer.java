@@ -24,6 +24,7 @@ import org.apache.zest.bootstrap.LayerAssembly;
 import org.apache.zest.bootstrap.ModuleAssembly;
 import org.apache.zest.bootstrap.layered.LayerAssembler;
 import org.apache.zest.bootstrap.layered.LayeredLayerAssembler;
+import org.sensorsink.pond.bootstrap.domain.RestClientsModule;
 
 public class InfrastructureLayer extends LayeredLayerAssembler
     implements LayerAssembler
@@ -45,7 +46,6 @@ public class InfrastructureLayer extends LayeredLayerAssembler
         new StorageModule( configModule ).assemble( layer, layer.module( StorageModule.NAME ) );
         new IndexingModule( configModule ).assemble( layer, layer.module( IndexingModule.NAME ) );
         new SerializationModule( typeFinder ).assemble( layer, layer.module( SerializationModule.NAME ) );
-        new RestClientsModule().assemble( layer, layer.module( RestClientsModule.NAME ) );
         return layer;
     }
 }

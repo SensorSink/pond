@@ -17,10 +17,15 @@
 package org.sensorsink.pond.web;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.zest.api.structure.Application;
 import org.apache.zest.bootstrap.AssemblyException;
 import org.apache.zest.bootstrap.layered.LayeredApplicationAssembler;
 import org.restlet.Context;
+import org.restlet.data.ChallengeScheme;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ClientResource;
 import org.restlet.routing.Filter;
 import org.restlet.routing.Router;
 import org.restlet.security.Enroler;

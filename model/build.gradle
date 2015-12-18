@@ -18,5 +18,4 @@ dependencies {
 
   compile libraries.zest_api
   compile libraries.zest_restlet
-  compile libraries.zest_scheduler
 }

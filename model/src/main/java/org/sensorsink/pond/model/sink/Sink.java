@@ -16,12 +16,11 @@
 
 package org.sensorsink.pond.model.sink;
 
-import java.time.Instant;
-import org.sensorsink.pond.model.points.Point;
+import org.sensorsink.pond.model.samples.Sample;
 
 public interface Sink
 {
     boolean isSupporting(Class<?> type);
 
-    void place(Point<?> point);
+    void place(Sample point);
 }

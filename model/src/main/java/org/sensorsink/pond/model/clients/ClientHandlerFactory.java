@@ -18,11 +18,9 @@ package org.sensorsink.pond.model.clients;
 
 import java.util.function.Consumer;
 import org.sensorsink.pond.model.devices.Device;
-import org.sensorsink.pond.model.points.Point;
+import org.sensorsink.pond.model.samples.Sample;
 
 public interface ClientHandlerFactory
 {
-    ClientHandler createClient( Device device,
-                                Consumer<Point> callback
-    );
+    ClientHandler createClient( Device device, Consumer<Sample> callback );
 }

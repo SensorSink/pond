@@ -24,9 +24,9 @@ public interface DeviceParameters
 {
     Property<String> deviceType();
 
-    Property<String> hostName();
-
     Property<Integer> port();
 
-    Property<AccessCredentials> credentials();
+    Property<String> userName();
+
+    Property<String> password();
 }

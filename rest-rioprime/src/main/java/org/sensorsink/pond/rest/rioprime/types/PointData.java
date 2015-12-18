@@ -20,15 +20,16 @@ import org.sensorsink.pond.rest.common.RestLink;
 
 public class PointData
 {
-    private String value;
+    private Double value;
     private RestLink get;
+    private RestLink put;
 
-    public String getValue()
+    public Double getValue()
     {
         return value;
     }
 
-    public void setValue( String value )
+    public void setValue( Double value )
     {
         this.value = value;
     }
@@ -41,5 +42,15 @@ public class PointData
     public void setGet( RestLink get )
     {
         this.get = get;
+    }
+
+    public RestLink getPut()
+    {
+        return put;
+    }
+
+    public void setPut( RestLink put )
+    {
+        this.put = put;
     }
 }

@@ -16,49 +16,38 @@
 
 package org.sensorsink.pond.model.clients;
 
-import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 import org.apache.zest.api.injection.scope.Service;
 import org.apache.zest.api.mixin.Mixins;
 import org.apache.zest.api.service.ServiceReference;
-import org.apache.zest.api.service.qualifier.Tagged;
-import org.sensorsink.pond.model.account.AccessCredentials;
+import org.apache.zest.api.service.qualifier.ServiceTags;
 import org.sensorsink.pond.model.devices.Device;
-import org.sensorsink.pond.model.points.Point;
+import org.sensorsink.pond.model.samples.Sample;
 
-@Mixins( ClientFactory.Mixin.class )
-public interface ClientFactory
+@Mixins( ClientsFactory.Mixin.class )
+public interface ClientsFactory
 {
-    ClientHandler createClient( Device device,
-                                Consumer<Point> callback
-    );
+    ClientHandler createClient( Device device, Consumer<Sample> callback );
 
     class Mixin
-        implements ClientFactory
+        implements ClientsFactory
     {
         @Service
-        private List<ServiceReference<ClientHandlerFactory>> factories;
+        private Iterable<ServiceReference<ClientHandlerFactory>> factories;
 
-        public ClientHandler createClient( Device device,
-                                           Consumer<Point> callback
-        )
+        public ClientHandler createClient( Device device, Consumer<Sample> callback )
         {
-            ClientHandlerFactory factory = factories.stream()
-                .filter( ref -> hasTag( device.deviceType().get(), ref.metaInfo( Tagged.class ) ) )
+            ClientHandlerFactory factory = StreamSupport.stream( factories.spliterator(), false )
+                .filter( ref -> hasTag( device.deviceType().get(), ref.metaInfo( ServiceTags.class ) ) )
                 .map( ServiceReference::get ).findAny().get();
+
             return factory.createClient( device, callback );
         }
 
-        private boolean hasTag( String name, Tagged tagged )
+        private boolean hasTag( String name, ServiceTags tags )
         {
-            for( String tag : tagged.value() )
-            {
-                if( tag.equals( name ) )
-                {
-                    return true;
-                }
-            }
-            return false;
+            return tags.hasTag( name );
         }
     }
 }

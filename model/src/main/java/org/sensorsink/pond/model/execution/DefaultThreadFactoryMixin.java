@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package org.sensorsink.pond.model.scheduling;
+package org.sensorsink.pond.model.execution;
 
-public class TaskBindingException extends RuntimeException
+import java.util.concurrent.ThreadFactory;
+
+public class DefaultThreadFactoryMixin
+    implements ThreadFactory
 {
-    public TaskBindingException( String message, Throwable cause )
+    @Override
+    public Thread newThread( Runnable target )
     {
-        super( message, cause );
+        return new Thread(target);
     }
 }

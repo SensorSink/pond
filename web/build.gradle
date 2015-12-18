@@ -26,6 +26,7 @@ dependencies {
   compile libraries.zest_bootstrap
   compile libraries.zest_runtime
   compile libraries.zest_restlet
+  compile libraries.zest_jdbm_es
 
 }
 

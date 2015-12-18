@@ -20,16 +20,15 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import org.sensorsink.pond.model.points.Point;
 
 class IndexValue
 {
     private final String device;
     private final String point;
     private final String ts;
-    private final String value;
+    private final Double value;
 
-    public IndexValue( String device, String point, Instant ts, String value )
+    public IndexValue( String device, String point, Instant ts, Double value )
     {
         this.device = device;
         this.point = point;
@@ -52,7 +51,7 @@ class IndexValue
         return ts;
     }
 
-    public String getValue()
+    public Double getValue()
     {
         return value;
     }
@@ -60,7 +59,8 @@ class IndexValue
 
     private String formatTimestamp( Instant timestamp )
     {
-        return ZonedDateTime.ofInstant( timestamp, ZoneId.of( "UTC" ) ).format( DateTimeFormatter.ISO_DATE_TIME );
+        String utc = ZonedDateTime.ofInstant( timestamp, ZoneId.of( "UTC" ) ).format( DateTimeFormatter.ISO_INSTANT );
+        return utc;
     }
 
 }

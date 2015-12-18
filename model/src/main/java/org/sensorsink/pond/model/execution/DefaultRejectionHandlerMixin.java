@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package org.sensorsink.pond.model.points;
+package org.sensorsink.pond.model.execution;
 
-import org.apache.zest.api.association.Association;
-import org.apache.zest.api.entity.Identity;
-import org.apache.zest.api.mixin.Mixins;
-import org.apache.zest.api.property.Property;
-import org.sensorsink.pond.model.devices.Device;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import org.apache.zest.api.injection.scope.This;
 
-public interface PointInfo extends Identity
+public class DefaultRejectionHandlerMixin
+    implements RejectedExecutionHandler
 {
-    Property<String> name();
-
-    Association<Device> device();
+    @Override
+    public void rejectedExecution( Runnable target, ThreadPoolExecutor executor )
+    {
+        System.err.println("Rejected execution " + target );
+    }
 }

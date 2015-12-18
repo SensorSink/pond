@@ -30,11 +30,9 @@ import org.apache.zest.api.property.Property;
 import org.apache.zest.api.unitofwork.UnitOfWorkFactory;
 import org.apache.zest.api.value.ValueBuilder;
 import org.apache.zest.api.value.ValueBuilderFactory;
-import org.sensorsink.pond.model.scheduling.BindableTask;
-import org.sensorsink.pond.model.scheduling.BindingSchedulingService;
 
-@Mixins( { Account.StateMixin.class, Account.AccountLifecycleMixin.class } )
-public interface Account extends Identity, Lifecycle
+@Mixins( { Account.StateMixin.class } )
+public interface Account extends Identity
 {
     @Optional
     Property<Organization> organization();
@@ -62,44 +60,6 @@ public interface Account extends Identity, Lifecycle
             p.country().set( params.country().get() );
             Organization org = builder.newInstance();
             organization().set( org );
-        }
-    }
-
-    class AccountLifecycleMixin
-        implements Lifecycle
-    {
-        @Service
-        private BindingSchedulingService scheduler;
-
-        @This
-        private Account me;
-
-        @Structure
-        private UnitOfWorkFactory uowf;
-
-        @Override
-        public void create()
-            throws LifecycleException
-        {
-            BindableTask<Account> task = createCheckTask();
-            scheduler.scheduleCron( task, "*/5 * * * * *" );
-            scheduler.bind( task, me );
-        }
-
-        @Override
-        public void remove()
-            throws LifecycleException
-        {
-
-        }
-
-        private AccountHygieneTask createCheckTask()
-        {
-            EntityBuilder<AccountHygieneTask> builder = uowf.currentUnitOfWork()
-                .newEntityBuilder( AccountHygieneTask.class );
-            AccountHygieneTask prototype = builder.instance();
-            prototype.name().set( "Account Hygiene Check" );
-            return builder.newInstance();
         }
     }
 }

@@ -21,18 +21,25 @@ import org.apache.zest.bootstrap.AssemblyException;
 import org.apache.zest.bootstrap.LayerAssembly;
 import org.apache.zest.bootstrap.ModuleAssembly;
 import org.apache.zest.bootstrap.layered.ModuleAssembler;
+import org.sensorsink.pond.model.clients.ClientHandlerFactory;
+import org.sensorsink.pond.rest.rioprime.RioPrimeClientHandler;
+import org.sensorsink.pond.rest.rioprime.RioPrimeClientHandlerFactory;
+import org.sensorsink.pond.rest.rioprime.RioPrimeClientHandlerMixin;
 
-public class SchedulingModule
+public class RestClientsModule
     implements ModuleAssembler
 {
+    public static final String NAME = "Rest Client Module";
+
     @Override
     public ModuleAssembly assemble( LayerAssembly layer, ModuleAssembly module )
         throws AssemblyException
     {
-        new BindingSchedulingAssembler()
-            .withConfig( module, Visibility.module )
-            .visibleIn( Visibility.layer )
-            .assemble( module );
+        module.services( ClientHandlerFactory.class)
+            .withMixins( RioPrimeClientHandlerFactory.class )
+            .taggedWith( "RIO_PRIME" ).visibleIn( Visibility.application );
+        module.transients( RioPrimeClientHandler.class );
+        module.objects( RioPrimeClientHandlerMixin.PointsResultHandler.class );
         return module;
     }
 }

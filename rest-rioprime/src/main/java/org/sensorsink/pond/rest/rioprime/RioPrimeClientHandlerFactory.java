@@ -24,7 +24,7 @@ import org.apache.zest.api.object.ObjectFactory;
 import org.sensorsink.pond.model.clients.ClientHandler;
 import org.sensorsink.pond.model.clients.ClientHandlerFactory;
 import org.sensorsink.pond.model.devices.Device;
-import org.sensorsink.pond.model.points.Point;
+import org.sensorsink.pond.model.samples.Sample;
 
 public class RioPrimeClientHandlerFactory
     implements ClientHandlerFactory
@@ -35,15 +35,17 @@ public class RioPrimeClientHandlerFactory
     @Structure
     private TransientBuilderFactory tbf;
 
+
     @Override
-    public ClientHandler createClient( Device device,
-                                       Consumer<Point> callback
-    )
+    public ClientHandler createClient( Device device, Consumer<Sample> callback )
     {
         TransientBuilder<RioPrimeClientHandler> builder = tbf.newTransientBuilder( RioPrimeClientHandler.class );
         RioPrimeClientHandler.State prototype = builder.prototypeFor( RioPrimeClientHandler.State.class );
         prototype.device().set( device );
+        prototype.refreshOnNextPoll().set( true );
         prototype.callback().set( callback );
-        return builder.newInstance();
+        RioPrimeClientHandler handler = builder.newInstance();
+        handler.connect();
+        return handler;
     }
 }

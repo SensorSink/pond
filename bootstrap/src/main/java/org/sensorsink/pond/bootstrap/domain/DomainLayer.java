@@ -34,8 +34,13 @@ public class DomainLayer extends LayeredLayerAssembler
         createModule( layer, AssetsModule.class );
         createModule( layer, AccountsModule.class );
         createModule( layer, CrudModule.class );
-        createModule( layer, SchedulingModule.class );
         createModule( layer, JmxModule.class );
+        createModule( layer, ClientsModule.class );
+
+        createModule( layer, RestClientsModule.class );
+        createModule( layer, SinksModule.class );
+        createModule( layer, PointsModule.class );
+
         return layer;
     }
 

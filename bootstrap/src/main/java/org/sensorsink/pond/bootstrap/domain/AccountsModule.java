@@ -25,7 +25,6 @@ import org.apache.zest.library.restlet.assembly.RestletCrudModuleAssembler;
 import org.apache.zest.spi.uuid.UuidIdentityGeneratorService;
 import org.sensorsink.pond.model.account.AccessCredentials;
 import org.sensorsink.pond.model.account.Account;
-import org.sensorsink.pond.model.account.AccountHygieneTask;
 import org.sensorsink.pond.model.account.InitialDataService;
 import org.sensorsink.pond.model.account.Organization;
 import org.sensorsink.pond.model.account.OrganizationParameters;
@@ -45,17 +44,17 @@ public class AccountsModule
         throws AssemblyException
     {
         new RestletCrudModuleAssembler( Account.class ).assemble( module );
-        module.entities( AccountHygieneTask.class ).visibleIn( Visibility.layer );
-        module.entities( User.class ).visibleIn( Visibility.module );
-        module.values( OrganizationParameters.class ).visibleIn( Visibility.application );
-        module.values( AccessCredentials.class ).visibleIn( Visibility.layer );
-        module.values( Organization.class ).visibleIn( Visibility.layer );
-        module.services( UuidIdentityGeneratorService.class );
-        module.values( CreateUserParameters.class ).visibleIn( Visibility.layer );
-
         new RestletCrudModuleAssembler( User.class ).assemble( module );
         new RestletCrudModuleAssembler( Role.class ).assemble( module );
         new RestletCrudModuleAssembler( UserRole.class ).assemble( module );
+
+        module.values( Organization.class ).visibleIn( Visibility.layer );
+        module.values( OrganizationParameters.class ).visibleIn( Visibility.application );
+
+        module.values( AccessCredentials.class ).visibleIn( Visibility.layer );
+        module.values( CreateUserParameters.class ).visibleIn( Visibility.layer );
+
+        module.services( UuidIdentityGeneratorService.class );
         module.services( SecurityRepository.class )
             .withMixins( EntityBackedSecurityRepository.class )
             .visibleIn( Visibility.application );

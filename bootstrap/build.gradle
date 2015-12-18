@@ -25,6 +25,7 @@ dependencies {
   compile libraries.zest_runtime
   compile libraries.zest_jmx
   compile libraries.zest_restlet
+  compile libraries.zest_jdbm_es
 
   compile libraries.jolokia
 }

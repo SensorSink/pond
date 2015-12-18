@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+#
+
+printout()
+{
+    echo \
+    { \
+        \"status\" : \"error\", \"error-text\" : \"$1\", \"usage\" : { \
+            \"command\" : \"ss modify device DNS-NAME USER PASSWORD [TYPE] [PORT]\", \
+            \"arguments\" : [ \
+                { \"DNS-NAME\" : \"The DNS name of the device. \" }, \
+                { \"USER\"     : \"User name to access the device.\" }, \
+                { \"PASSWORD\" : \"Password to access the device.\" }, \
+                { \"TYPE\"     : \"The device type. Default:generic.\" }, \
+                { \"PORT\"     : \"The port of the device. Default:type specific.\" } \
+            ] \
+        } \
+    }
+}
+
+read ACTIVE <$HOME/.sensorsink/active.env
+read ACCOUNT NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
+read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
+
+if [ "$1" == "" ] ; then
+    printout "Missing DNS-NAME USER PASSWORD "
+    exit 1
+fi
+
+if [ "$2" == "" ] ; then
+    printout "Missing USER PASSWORD "
+    exit 1
+fi
+
+if [ "$3" == "" ] ; then
+    printout "Missing PASSWORD "
+    exit 1
+fi
+
+curl -qs -L --user $NAME:$PASS \
+     -d "userName=$2"  \
+     -d "password=$3"  \
+     -d "deviceType=$4"  \
+     -d "port=$5"  \
+     -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     http://$ENTRYHOST/api/1/accounts/$ACCOUNT/devices/$1/modifyDevice
+

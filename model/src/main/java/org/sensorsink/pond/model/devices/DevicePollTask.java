@@ -16,55 +16,59 @@
 
 package org.sensorsink.pond.model.devices;
 
-import java.util.List;
 import java.util.function.Consumer;
+import org.apache.zest.api.composite.TransientComposite;
 import org.apache.zest.api.injection.scope.Service;
+import org.apache.zest.api.injection.scope.Structure;
+import org.apache.zest.api.injection.scope.Uses;
 import org.apache.zest.api.mixin.Initializable;
-import org.apache.zest.api.mixin.InitializationException;
 import org.apache.zest.api.mixin.Mixins;
-import org.sensorsink.pond.model.clients.ClientFactory;
+import org.apache.zest.api.service.ServiceReference;
+import org.apache.zest.api.unitofwork.UnitOfWork;
+import org.apache.zest.api.unitofwork.UnitOfWorkFactory;
+import org.apache.zest.api.unitofwork.concern.UnitOfWorkPropagation;
+import org.sensorsink.pond.model.clients.ClientsFactory;
 import org.sensorsink.pond.model.clients.ClientHandler;
-import org.sensorsink.pond.model.points.Point;
-import org.sensorsink.pond.model.scheduling.BindableTask;
+import org.sensorsink.pond.model.samples.Sample;
 import org.sensorsink.pond.model.sink.Sink;
+import org.sensorsink.pond.model.support.UnitOfWorkTask;
 
 @Mixins( DevicePollTask.DevicePollRunnable.class )
-public interface DevicePollTask extends BindableTask<Device>
+public interface DevicePollTask extends UnitOfWorkTask, TransientComposite
 {
     abstract class DevicePollRunnable
-        implements DevicePollTask, Initializable, Consumer<Point>
+        implements DevicePollTask, Initializable, Consumer<Sample>
     {
         @Service
-        private List<Sink> sinks;
+        private Iterable<ServiceReference<Sink>> sinks;
 
         @Service
-        private ClientFactory clientFactory;
+        private ClientsFactory clientsFactory;
+
+        @Structure
+        UnitOfWorkFactory uowf;
+
+        @Uses
+        private String deviceId;
 
         private ClientHandler client;
 
         @Override
-        public void run()
+        @UnitOfWorkPropagation(usecase = "Poll Device")
+        public void execute()
         {
-            System.out.println( "Polling " + entity().get().identity().get() );
-            poll();
-        }
-
-        private void poll()
-        {
+            UnitOfWork uow = uowf.currentUnitOfWork();
+            Device device = uow.get( Device.class, deviceId );
+            Device deviceValue = uow.toValue( Device.class, device );
+            client = clientsFactory.createClient( deviceValue, this );
             client.poll();
         }
 
         @Override
-        public void initialize()
-            throws InitializationException
-        {
-            client = clientFactory.createClient( entity().get(), this );
-        }
 
-        @Override
-        public void accept( Point point )
+        public void accept( Sample point )
         {
-            sinks.forEach( sink -> sink.place( point ) );
+            sinks.forEach( sink -> sink.get().place( point ) );
         }
     }
 }

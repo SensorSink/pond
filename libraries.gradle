@@ -47,12 +47,14 @@ rootProject.ext {
           zest_bootstrap: "org.apache.zest.core:org.apache.zest.core.bootstrap:$zestVersion",
           zest_runtime: "org.apache.zest.core:org.apache.zest.core.runtime:$zestVersion",
           zest_testsupport: "org.apache.zest.core:org.apache.zest.core.testsupport:$zestVersion",
+
           zest_jmx: "org.apache.zest.library:org.apache.zest.library.jmx:$zestVersion",
           zest_restlet: "org.apache.zest.library:org.apache.zest.library.restlet:$zestVersion",
           zest_rest_client: "org.apache.zest.library:org.apache.zest.library.rest-client:$zestVersion",
-          zest_scheduler: "org.apache.zest.library:org.apache.zest.library.scheduler:$zestVersion",
-          zest_file_es: "org.apache.zest.extension:org.apache.zest.entitystore.file:$zestVersion",
-          zest_rdf_idx: "org.apache.zest.extension:org.apache.zest.indexing.rdf:$zestVersion",
+
+          zest_file_es: "org.apache.zest.extension:org.apache.zest.extension.entitystore-file:$zestVersion",
+          zest_jdbm_es: "org.apache.zest.extension:org.apache.zest.extension.entitystore-jdbm:$zestVersion",
+          zest_rdf_idx: "org.apache.zest.extension:org.apache.zest.extension.indexing-rdf:$zestVersion",
 
           junit: "junit:junit:$junitVersion",
           mockito: "org.mockito:mockito-core:$mockitoVersion"

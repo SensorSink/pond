@@ -19,6 +19,12 @@ printout()
     }
 }
 
+CURRENTDIR=`pwd`
+LAUNCHDIR=`dirname $0`
+cd $LAUNCHDIR
+export SS_HOME=`pwd`
+cd $CURRENTDIR
+
 read ACTIVE <$HOME/.sensorsink/active.env
 read ACCOUNT NAME PASS <$HOME/.sensorsink/credentials/$ACTIVE.creds
 read ENTRYHOST <$HOME/.sensorsink/$ACTIVE/host.config
@@ -38,16 +44,16 @@ if [ "$3" == "" ] ; then
     exit 1
 fi
 
-if [ "$4" == "" ] ; then
+if [ "$5" == "" ] ; then
     PORT_NO="-1"
 else
-    PORT_NO=$2
+    PORT_NO=$5
 fi
 
-if [ "$5" == "" ] ; then
+if [ "$4" == "" ] ; then
     DEVICE_TYPE="generic"
 else
-    DEVICE_TYPE=$2
+    DEVICE_TYPE=$4
 fi
 
 INSPECT=`$SS_HOME/ss inspect device $1`
@@ -57,10 +63,10 @@ OTHERERROR=`echo $INSPECT | grep "\"code\": 400,"`
 if [ "$EXISTS" != "" ] ; then
   curl -qs -L --user $NAME:$PASS \
      -d "name=$1"  \
-     -d "user=$2"  \
+     -d "userName=$2"  \
      -d "password=$3"  \
      -d "port=$PORT_NO"  \
-     -d "type=$DEVICE_TYPE"  \
+     -d "deviceType=$DEVICE_TYPE"  \
      -H "Accept: application/json" \
      http://$ENTRYHOST/api/1/accounts/$ACCOUNT/devices/create
 elif [ "$OTHERERROR" != "" ] ; then

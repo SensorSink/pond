@@ -43,7 +43,7 @@ public class SerializationModule
         throws AssemblyException
     {
         new JacksonValueSerializationAssembler()
-            .visibleIn( Visibility.layer )
+            .visibleIn( Visibility.application )
             .withValuesModuleFinder( typeFinder )
             .assemble( module );
         module.services( UuidIdentityGeneratorService.class ).visibleIn( Visibility.layer );

@@ -23,16 +23,11 @@ import org.apache.zest.api.injection.scope.Structure;
 import org.apache.zest.api.injection.scope.This;
 import org.apache.zest.api.unitofwork.UnitOfWorkFactory;
 import org.sensorsink.pond.model.account.Account;
-import org.sensorsink.pond.model.scheduling.BindableTask;
-import org.sensorsink.pond.model.scheduling.BindingSchedulingService;
 import org.sensorsink.pond.model.account.SecurityService;
 
 public abstract class DeviceLifecycleMixin
     implements Device
 {
-    @Service
-    private BindingSchedulingService scheduler;
-
     @This
     private Device me;
 
@@ -48,22 +43,11 @@ public abstract class DeviceLifecycleMixin
     {
         Account account = security.currentAccount();
         account().set(account);
-        BindableTask<Device> task = createHostCheckTask();
-        scheduler.scheduleCron( task, "15 * * * * *" );
-        scheduler.bind( task, me );
     }
 
     @Override
     public void remove()
         throws LifecycleException
     {
-    }
-
-    private DevicePollTask createHostCheckTask()
-    {
-        EntityBuilder<DevicePollTask> builder = uowf.currentUnitOfWork().newEntityBuilder( DevicePollTask.class );
-        DevicePollTask prototype = builder.instance();
-        prototype.name().set( "Device Poll" );
-        return builder.newInstance();
     }
 }

@@ -16,29 +16,25 @@
 
 package org.sensorsink.pond.bootstrap.domain;
 
+import org.apache.zest.api.common.Visibility;
 import org.apache.zest.bootstrap.AssemblyException;
 import org.apache.zest.bootstrap.LayerAssembly;
 import org.apache.zest.bootstrap.ModuleAssembly;
 import org.apache.zest.bootstrap.layered.ModuleAssembler;
-import org.apache.zest.library.jmx.JMXAssembler;
-import org.apache.zest.library.jmx.JMXConnectorConfiguration;
-import org.apache.zest.library.jmx.JMXConnectorService;
+import org.sensorsink.pond.model.clients.ClientsFactory;
 
-public class JmxModule
+public class ClientsModule
     implements ModuleAssembler
 {
     public static String NAME;
 
     @Override
-    public ModuleAssembly assemble( LayerAssembly layer, ModuleAssembly module
-    )
+    public ModuleAssembly assemble( LayerAssembly layer, ModuleAssembly module )
         throws AssemblyException
     {
-        new JMXAssembler().assemble( module );
-
-        module.services( JMXConnectorService.class ).instantiateOnStartup();
-        module.entities( JMXConnectorConfiguration.class );
-        module.forMixin( JMXConnectorConfiguration.class ).declareDefaults().port().set( 1299 );
+        module.services( ClientsFactory.class )
+            .visibleIn( Visibility.layer )
+            .instantiateOnStartup();
         return module;
     }
 }
